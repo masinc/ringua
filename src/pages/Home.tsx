@@ -195,7 +195,7 @@ export default function Home() {
                       value={state.sourceText}
                       onChange={(e) => setState(prev => ({ ...prev, sourceText: e.target.value }))}
                       placeholder="翻訳したいテキストを入力してください..."
-                      className="min-h-48 resize-none"
+                      className="h-[calc(50vh-200px)] min-h-32 resize-none"
                     />
                     <div className="flex justify-between items-center mt-2">
                       <Badge variant="secondary" className="text-xs">
@@ -226,7 +226,7 @@ export default function Home() {
                       value={state.targetText}
                       readOnly
                       placeholder={state.isTranslating ? "翻訳中..." : "翻訳結果がここに表示されます"}
-                      className="min-h-48 resize-none bg-muted/50"
+                      className="h-[calc(50vh-200px)] min-h-32 resize-none bg-muted/50"
                     />
                     {state.isTranslating && (
                       <div className="flex items-center gap-2 mt-2 text-primary">

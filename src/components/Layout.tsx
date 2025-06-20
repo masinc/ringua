@@ -51,12 +51,8 @@ export default function Layout({ children }: LayoutProps) {
             </nav>
           </div>
 
-          <Separator />
-          
           <div className="p-2">
-            <p className="text-xs text-muted-foreground text-center transform rotate-90 whitespace-nowrap">
-              v0.1.2
-            </p>
+            <div className="w-1 h-1 bg-muted rounded-full mx-auto" title="v0.1.2"></div>
           </div>
         </div>
       </nav>
