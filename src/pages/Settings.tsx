@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Save, 
   Download, 
@@ -22,12 +23,29 @@ import {
   Bell
 } from "lucide-react";
 
-interface UserSettings {
-  apiKeys: {
-    openai: string;
-    claude: string;
-    gemini: string;
+interface ModelConfig {
+  id: string;
+  name: string;
+  enabled: boolean;
+  isDefault?: boolean;
+  parameters?: {
+    temperature?: number;
+    maxTokens?: number;
+    topP?: number;
   };
+}
+
+interface ProviderConfig {
+  id: string;
+  name: string;
+  apiKey: string;
+  endpoint?: string;
+  enabled: boolean;
+  models: ModelConfig[];
+}
+
+interface UserSettings {
+  providers: ProviderConfig[];
   defaultLanguages: {
     source: string;
     target: string;
@@ -37,12 +55,43 @@ interface UserSettings {
   notifications: boolean;
 }
 
-const DEFAULT_SETTINGS: UserSettings = {
-  apiKeys: {
-    openai: "",
-    claude: "",
-    gemini: "",
+const DEFAULT_PROVIDERS: ProviderConfig[] = [
+  {
+    id: "openai",
+    name: "OpenAI",
+    apiKey: "",
+    enabled: true,
+    models: [
+      { id: "gpt-4o", name: "GPT-4o", enabled: true, isDefault: true },
+      { id: "gpt-4", name: "GPT-4", enabled: true },
+      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", enabled: false },
+    ]
   },
+  {
+    id: "claude",
+    name: "Anthropic Claude",
+    apiKey: "",
+    enabled: true,
+    models: [
+      { id: "claude-3-5-sonnet", name: "Claude 3.5 Sonnet", enabled: true, isDefault: true },
+      { id: "claude-3-opus", name: "Claude 3 Opus", enabled: true },
+      { id: "claude-3-haiku", name: "Claude 3 Haiku", enabled: false },
+    ]
+  },
+  {
+    id: "gemini",
+    name: "Google Gemini",
+    apiKey: "",
+    enabled: true,
+    models: [
+      { id: "gemini-pro", name: "Gemini Pro", enabled: true, isDefault: true },
+      { id: "gemini-pro-vision", name: "Gemini Pro Vision", enabled: false },
+    ]
+  }
+];
+
+const DEFAULT_SETTINGS: UserSettings = {
+  providers: DEFAULT_PROVIDERS,
   defaultLanguages: {
     source: "auto",
     target: "ja",
@@ -97,10 +146,45 @@ export default function Settings() {
     setHasChanges(true);
   };
 
-  const updateApiKey = (provider: keyof UserSettings["apiKeys"], value: string) => {
-    updateSettings({
-      apiKeys: { ...settings.apiKeys, [provider]: value }
+  const updateProviderApiKey = (providerId: string, apiKey: string) => {
+    const updatedProviders = settings.providers.map(provider =>
+      provider.id === providerId ? { ...provider, apiKey } : provider
+    );
+    updateSettings({ providers: updatedProviders });
+  };
+
+  const updateProviderEnabled = (providerId: string, enabled: boolean) => {
+    const updatedProviders = settings.providers.map(provider =>
+      provider.id === providerId ? { ...provider, enabled } : provider
+    );
+    updateSettings({ providers: updatedProviders });
+  };
+
+  const updateModelEnabled = (providerId: string, modelId: string, enabled: boolean) => {
+    const updatedProviders = settings.providers.map(provider => {
+      if (provider.id === providerId) {
+        const updatedModels = provider.models.map(model =>
+          model.id === modelId ? { ...model, enabled } : model
+        );
+        return { ...provider, models: updatedModels };
+      }
+      return provider;
     });
+    updateSettings({ providers: updatedProviders });
+  };
+
+  const updateModelDefault = (providerId: string, modelId: string) => {
+    const updatedProviders = settings.providers.map(provider => {
+      if (provider.id === providerId) {
+        const updatedModels = provider.models.map(model => ({
+          ...model,
+          isDefault: model.id === modelId
+        }));
+        return { ...provider, models: updatedModels };
+      }
+      return provider;
+    });
+    updateSettings({ providers: updatedProviders });
   };
 
   const updateLanguage = (type: "source" | "target", value: string) => {
@@ -222,52 +306,82 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="api" className="space-y-4 mt-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">APIキー設定</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  各AIモデルのAPIキーを設定してください
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="openai-key" className="text-sm font-medium">
-                    OpenAI API Key
-                  </Label>
-                  <Input
-                    id="openai-key"
-                    type="password"
-                    placeholder="sk-..."
-                    value={settings.apiKeys.openai}
-                    onChange={(e) => updateApiKey("openai", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="claude-key" className="text-sm font-medium">
-                    Anthropic Claude API Key
-                  </Label>
-                  <Input
-                    id="claude-key"
-                    type="password"
-                    placeholder="sk-ant-..."
-                    value={settings.apiKeys.claude}
-                    onChange={(e) => updateApiKey("claude", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="gemini-key" className="text-sm font-medium">
-                    Google Gemini API Key
-                  </Label>
-                  <Input
-                    id="gemini-key"
-                    type="password"
-                    placeholder="AI..."
-                    value={settings.apiKeys.gemini}
-                    onChange={(e) => updateApiKey("gemini", e.target.value)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            {settings.providers.map((provider) => (
+              <Card key={provider.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">{provider.name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        APIキーとモデル設定
+                      </p>
+                    </div>
+                    <Switch
+                      checked={provider.enabled}
+                      onCheckedChange={(enabled) => updateProviderEnabled(provider.id, enabled)}
+                    />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`${provider.id}-key`} className="text-sm font-medium">
+                      API Key
+                    </Label>
+                    <Input
+                      id={`${provider.id}-key`}
+                      type="password"
+                      placeholder={
+                        provider.id === "openai" ? "sk-..." :
+                        provider.id === "claude" ? "sk-ant-..." :
+                        "API Key"
+                      }
+                      value={provider.apiKey}
+                      onChange={(e) => updateProviderApiKey(provider.id, e.target.value)}
+                      disabled={!provider.enabled}
+                    />
+                  </div>
+                  
+                  {provider.enabled && (
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">利用可能モデル</Label>
+                      <div className="space-y-2">
+                        {provider.models.map((model) => (
+                          <div key={model.id} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`${provider.id}-${model.id}`}
+                                checked={model.enabled}
+                                onCheckedChange={(enabled) => 
+                                  updateModelEnabled(provider.id, model.id, enabled as boolean)
+                                }
+                              />
+                              <label 
+                                htmlFor={`${provider.id}-${model.id}`}
+                                className="text-sm font-medium"
+                              >
+                                {model.name}
+                              </label>
+                            </div>
+                            {model.enabled && (
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  name={`default-${provider.id}`}
+                                  checked={model.isDefault || false}
+                                  onChange={() => updateModelDefault(provider.id, model.id)}
+                                  className="h-3 w-3"
+                                />
+                                <span className="text-xs text-muted-foreground">デフォルト</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </TabsContent>
 
           <TabsContent value="language" className="space-y-4 mt-4">
