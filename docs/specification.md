@@ -1,110 +1,110 @@
-# Ringua - Application Specification
+# Ringua - アプリケーション仕様書
 
-## 1. Overview
+## 1. 概要
 
-Ringua is a desktop translation application that leverages multiple AI models to provide high-quality translations with a focus on clipboard integration. The application is designed for individual users who want to bring their own API keys for maximum control and privacy.
+Ringuaは複数のAIモデルを活用してクリップボード統合に焦点を当てた高品質な翻訳を提供するデスクトップ翻訳アプリケーションです。このアプリケーションは、最大限のコントロールとプライバシーのために独自のAPIキーを持ち込みたい個人ユーザー向けに設計されています。
 
-## 2. Target Users
+## 2. ターゲットユーザー
 
-- **Primary**: Individual users seeking reliable translation tools
-- **Secondary**: Developers and technical users who prefer API-based solutions
-- **User Characteristics**: 
-  - Comfortable with API key management
-  - Need frequent translation capabilities
-  - Value privacy and local data storage
+- **主要**: 信頼性の高い翻訳ツールを求める個人ユーザー
+- **副次**: APIベースのソリューションを好む開発者および技術ユーザー
+- **ユーザー特性**: 
+  - APIキー管理に慣れている
+  - 頻繁な翻訳機能が必要
+  - プライバシーとローカルデータ保存を重視
 
-## 3. Core Features
+## 3. コア機能
 
-### 3.1 Clipboard Translation
-- **Description**: Primary feature allowing users to translate content directly from clipboard
-- **User Flow**:
-  1. User copies text to clipboard
-  2. User triggers translation (hotkey/button)
-  3. Translation appears in application
-  4. Option to copy result back to clipboard
+### 3.1 クリップボード翻訳
+- **説明**: ユーザーがクリップボードから直接コンテンツを翻訳できる主要機能
+- **ユーザーフロー**:
+  1. ユーザーがテキストをクリップボードにコピー
+  2. ユーザーが翻訳をトリガー（ホットキー/ボタン）
+  3. 翻訳がアプリケーションに表示
+  4. 結果をクリップボードに戻すオプション
 
-### 3.2 Multi-Model AI Support
-- **Supported Models**:
+### 3.2 マルチモデルAIサポート
+- **サポートモデル**:
   - OpenAI GPT (GPT-3.5, GPT-4, GPT-4o)
-  - Anthropic Claude (Claude 3 family)
+  - Anthropic Claude (Claude 3 ファミリー)
   - Google Gemini
   - DeepSeek
-  - Extensible architecture for future models
+  - 将来のモデルに対応する拡張可能なアーキテクチャ
 
-### 3.3 Translation History
-- **Features**:
-  - Local storage of translation pairs
-  - Search and filter capabilities
-  - Export/import functionality
-  - Favorites/bookmarking system
+### 3.3 翻訳履歴
+- **機能**:
+  - 翻訳ペアのローカル保存
+  - 検索およびフィルタリング機能
+  - エクスポート/インポート機能
+  - お気に入り/ブックマークシステム
 
-### 3.4 Multi-language Support
-- **Language Detection**: Automatic source language detection
-- **Language Pairs**: Support for major world languages
-- **User Preferences**: Default source/target language settings
+### 3.4 多言語サポート
+- **言語検出**: 自動ソース言語検出
+- **言語ペア**: 主要な世界言語のサポート
+- **ユーザー設定**: デフォルトのソース/ターゲット言語設定
 
-## 4. Technical Architecture
+## 4. 技術アーキテクチャ
 
-### 4.1 Application Structure
+### 4.1 アプリケーション構造
 ```
-Frontend (React + TypeScript)
-├── UI Components
-├── State Management
-├── API Integration Layer
-└── Clipboard Integration
+フロントエンド (React + TypeScript)
+├── UIコンポーネント
+├── 状態管理
+├── API統合レイヤー
+└── クリップボード統合
 
-Backend (Rust + Tauri)
-├── Database Management (SQLite)
-├── AI Model API Clients
-├── System Integration (Clipboard)
-└── Configuration Management
-```
-
-### 4.2 Data Flow
-```
-User Input → Clipboard → Frontend → Backend → AI API → Backend → Frontend → Display
-                                        ↓
-                                   SQLite Database
+バックエンド (Rust + Tauri)
+├── データベース管理 (SQLite)
+├── AIモデルAPIクライアント
+├── システム統合 (クリップボード)
+└── 設定管理
 ```
 
-## 5. User Interface Specification
+### 4.2 データフロー
+```
+ユーザー入力 → クリップボード → フロントエンド → バックエンド → AI API → バックエンド → フロントエンド → 表示
+                                                ↓
+                                           SQLiteデータベース
+```
 
-### 5.1 Main Window
-- **Layout**: Two-panel design (Source/Target)
-- **Components**:
-  - Input text area (source)
-  - Output text area (target)
-  - Language selector dropdowns
-  - AI model selector
-  - Translate button
-  - History sidebar (collapsible)
+## 5. ユーザーインターフェース仕様
 
-### 5.2 Settings Window
-- **API Configuration**:
-  - API key input fields for each model
-  - API endpoint configuration
-  - Connection testing
-- **Language Settings**:
-  - Default source/target languages
-  - Language detection preferences
-- **Application Preferences**:
-  - Theme selection
-  - Hotkey configuration
-  - Auto-save settings
+### 5.1 メインウィンドウ
+- **レイアウト**: 2パネル設計（ソース/ターゲット）
+- **コンポーネント**:
+  - 入力テキストエリア（ソース）
+  - 出力テキストエリア（ターゲット）
+  - 言語選択ドロップダウン
+  - AIモデル選択
+  - 翻訳ボタン
+  - 履歴サイドバー（折りたたみ可能）
 
-### 5.3 History View
-- **Features**:
-  - Chronological list of translations
-  - Search functionality
-  - Filter by language pair
-  - Star/favorite system
-  - Export options
+### 5.2 設定ウィンドウ
+- **API設定**:
+  - 各モデルのAPIキー入力フィールド
+  - APIエンドポイント設定
+  - 接続テスト
+- **言語設定**:
+  - デフォルトソース/ターゲット言語
+  - 言語検出設定
+- **アプリケーション設定**:
+  - テーマ選択
+  - ホットキー設定
+  - 自動保存設定
 
-## 6. Data Management
+### 5.3 履歴ビュー
+- **機能**:
+  - 翻訳の時系列リスト
+  - 検索機能
+  - 言語ペアによるフィルタリング
+  - スター/お気に入りシステム
+  - エクスポートオプション
 
-### 6.1 Database Schema (SQLite)
+## 6. データ管理
 
-#### Translations Table
+### 6.1 データベーススキーマ (SQLite)
+
+#### 翻訳テーブル
 ```sql
 CREATE TABLE translations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -118,7 +118,7 @@ CREATE TABLE translations (
 );
 ```
 
-#### API Configurations Table
+#### API設定テーブル
 ```sql
 CREATE TABLE api_configs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -131,7 +131,7 @@ CREATE TABLE api_configs (
 );
 ```
 
-#### User Preferences Table
+#### ユーザー設定テーブル
 ```sql
 CREATE TABLE user_preferences (
     key TEXT PRIMARY KEY,
@@ -140,14 +140,14 @@ CREATE TABLE user_preferences (
 );
 ```
 
-### 6.2 Data Security
-- API keys stored using OS keyring/credential manager
-- Local database encryption for sensitive data
-- No cloud synchronization (privacy-first approach)
+### 6.2 データセキュリティ
+- OSキーリング/資格情報マネージャーを使用したAPIキーの保存
+- 機密データのローカルデータベース暗号化
+- クラウド同期なし（プライバシーファーストアプローチ）
 
-## 7. API Integration
+## 7. API統合
 
-### 7.1 AI Model Integration Pattern
+### 7.1 AIモデル統合パターン
 ```rust
 trait TranslationProvider {
     async fn translate(
@@ -162,71 +162,71 @@ trait TranslationProvider {
 }
 ```
 
-### 7.2 Error Handling
-- **API Errors**: Rate limiting, authentication failures, network issues
-- **User Feedback**: Clear error messages with suggested actions
-- **Fallback**: Ability to try alternative models on failure
+### 7.2 エラーハンドリング
+- **APIエラー**: レート制限、認証失敗、ネットワーク問題
+- **ユーザーフィードバック**: 推奨アクション付きの明確なエラーメッセージ
+- **フォールバック**: 失敗時に代替モデルを試す機能
 
-## 8. Performance Requirements
+## 8. パフォーマンス要件
 
-### 8.1 Response Time
-- **Translation**: < 5 seconds for typical text (up to 1000 characters)
-- **UI Responsiveness**: < 100ms for user interactions
-- **Database Operations**: < 500ms for history queries
+### 8.1 応答時間
+- **翻訳**: 一般的なテキスト（最大1000文字）で5秒未満
+- **UI応答性**: ユーザーインタラクションで100ms未満
+- **データベース操作**: 履歴クエリで500ms未満
 
-### 8.2 Resource Usage
-- **Memory**: < 200MB during normal operation
-- **Storage**: Efficient database indexing for history search
-- **CPU**: Minimal background processing
+### 8.2 リソース使用量
+- **メモリ**: 通常動作時200MB未満
+- **ストレージ**: 履歴検索のための効率的なデータベースインデックス
+- **CPU**: 最小限のバックグラウンド処理
 
-## 9. Security Considerations
+## 9. セキュリティ考慮事項
 
-### 9.1 API Key Management
-- Secure storage using OS credential manager
-- No plain text storage of sensitive data
-- Option to clear/reset API keys
+### 9.1 APIキー管理
+- OS資格情報マネージャーを使用した安全な保存
+- 機密データの平文保存なし
+- APIキーのクリア/リセットオプション
 
-### 9.2 Data Privacy
-- No telemetry or usage tracking
-- All data stored locally
-- User control over data retention
+### 9.2 データプライバシー
+- テレメトリや使用追跡なし
+- すべてのデータをローカルに保存
+- データ保持に対するユーザーコントロール
 
-## 10. Future Enhancements
+## 10. 将来の機能拡張
 
-### 10.1 Planned Features
-- **Batch Translation**: Support for multiple text blocks
-- **File Translation**: Support for document translation
-- **Custom Prompts**: User-defined translation prompts
-- **Plugin System**: Third-party AI model integration
+### 10.1 計画中の機能
+- **バッチ翻訳**: 複数のテキストブロックのサポート
+- **ファイル翻訳**: ドキュメント翻訳のサポート
+- **カスタムプロンプト**: ユーザー定義の翻訳プロンプト
+- **プラグインシステム**: サードパーティAIモデル統合
 
-### 10.2 Potential Integrations
-- **OCR**: Image-to-text translation
-- **Voice**: Speech-to-text translation
-- **Browser Extension**: Web page translation
-- **Mobile Companion**: Cross-device synchronization
+### 10.2 潜在的な統合
+- **OCR**: 画像からテキストへの翻訳
+- **音声**: 音声からテキストへの翻訳
+- **ブラウザ拡張**: ウェブページ翻訳
+- **モバイルコンパニオン**: クロスデバイス同期
 
-## 11. Development Phases
+## 11. 開発フェーズ
 
-### Phase 1: Core Functionality
-- Basic UI implementation
-- Clipboard integration
-- Single AI model support (OpenAI GPT)
-- Basic translation history
+### フェーズ1: コア機能
+- 基本UI実装
+- クリップボード統合
+- 単一AIモデルサポート（OpenAI GPT）
+- 基本翻訳履歴
 
-### Phase 2: Multi-Model Support
-- Additional AI model integrations
-- Enhanced error handling
-- Improved UI/UX
-- Settings management
+### フェーズ2: マルチモデルサポート
+- 追加AIモデル統合
+- 強化されたエラーハンドリング
+- 改善されたUI/UX
+- 設定管理
 
-### Phase 3: Advanced Features
-- Search and filter in history
-- Export/import functionality
-- Performance optimizations
-- Polish and bug fixes
+### フェーズ3: 高度な機能
+- 履歴内の検索とフィルタリング
+- エクスポート/インポート機能
+- パフォーマンス最適化
+- 仕上げとバグ修正
 
-### Phase 4: Extension Features
-- Custom prompts
-- Batch translation
-- Advanced configuration options
-- Documentation and tutorials
+### フェーズ4: 拡張機能
+- カスタムプロンプト
+- バッチ翻訳
+- 高度な設定オプション
+- ドキュメントとチュートリアル

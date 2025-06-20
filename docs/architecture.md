@@ -1,63 +1,63 @@
-# Ringua - Technical Architecture
+# Ringua - 技術アーキテクチャ
 
-## 1. System Overview
+## 1. システム概要
 
-Ringua follows a desktop-first architecture built on the Tauri framework, combining a React frontend with a Rust backend for optimal performance and native OS integration.
+Ringuaは、最適なパフォーマンスとネイティブOS統合のためにReactフロントエンドとRustバックエンドを組み合わせたTauriフレームワーク上に構築されたデスクトップファーストアーキテクチャに従います。
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         User Interface                         │
+│                         ユーザーインターフェース                │
 │                    (React + TypeScript)                        │
 ├─────────────────────────────────────────────────────────────────┤
-│                      Application Logic                         │
+│                      アプリケーションロジック                   │
 │                         (Tauri Core)                           │
 ├─────────────────────────────────────────────────────────────────┤
-│                      Backend Services                          │
+│                      バックエンドサービス                       │
 │                         (Rust)                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│           Local Storage              │      External APIs       │
-│          (SQLite DB)                 │    (AI Translation)      │
+│           ローカルストレージ         │      外部API               │
+│          (SQLite DB)                 │    (AI翻訳)               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 2. Frontend Architecture (React + TypeScript)
+## 2. フロントエンドアーキテクチャ (React + TypeScript)
 
-### 2.1 Component Structure
+### 2.1 コンポーネント構造
 ```
 src/
-├── components/           # Reusable UI components
-│   ├── common/          # Generic components (Button, Input, etc.)
-│   ├── translation/     # Translation-specific components
-│   ├── history/         # History management components
-│   └── settings/        # Configuration components
-├── pages/               # Route-level components
-│   ├── Home.tsx         # Main translation interface
-│   ├── History.tsx      # Translation history view
-│   └── Settings.tsx     # Application settings
-├── hooks/               # Custom React hooks
-│   ├── useTranslation.ts    # Translation logic
-│   ├── useClipboard.ts      # Clipboard integration
-│   ├── useDatabase.ts       # Database operations
-│   └── useSettings.ts       # Settings management
-├── types/               # TypeScript definitions
-│   ├── translation.ts   # Translation-related types
-│   ├── models.ts        # AI model definitions
-│   └── database.ts      # Database schema types
-├── utils/               # Utility functions
-│   ├── api.ts           # API client utilities
-│   ├── validation.ts    # Input validation
-│   └── formatters.ts    # Text formatting helpers
-└── stores/              # State management
-    ├── translationStore.ts  # Translation state
-    ├── settingsStore.ts     # Application settings
-    └── historyStore.ts      # History management
+├── components/           # 再利用可能なUIコンポーネント
+│   ├── common/          # 汎用コンポーネント (Button, Input等)
+│   ├── translation/     # 翻訳専用コンポーネント
+│   ├── history/         # 履歴管理コンポーネント
+│   └── settings/        # 設定コンポーネント
+├── pages/               # ルートレベルコンポーネント
+│   ├── Home.tsx         # メイン翻訳インターフェース
+│   ├── History.tsx      # 翻訳履歴ビュー
+│   └── Settings.tsx     # アプリケーション設定
+├── hooks/               # カスタムReactフック
+│   ├── useTranslation.ts    # 翻訳ロジック
+│   ├── useClipboard.ts      # クリップボード統合
+│   ├── useDatabase.ts       # データベース操作
+│   └── useSettings.ts       # 設定管理
+├── types/               # TypeScript定義
+│   ├── translation.ts   # 翻訳関連の型
+│   ├── models.ts        # AIモデル定義
+│   └── database.ts      # データベーススキーマ型
+├── utils/               # ユーティリティ関数
+│   ├── api.ts           # APIクライアントユーティリティ
+│   ├── validation.ts    # 入力検証
+│   └── formatters.ts    # テキスト整形ヘルパー
+└── stores/              # 状態管理
+    ├── translationStore.ts  # 翻訳状態
+    ├── settingsStore.ts     # アプリケーション設定
+    └── historyStore.ts      # 履歴管理
 ```
 
-### 2.2 State Management Pattern
-Using React Context + Reducers for state management:
+### 2.2 状態管理パターン
+状態管理にはReact Context + Reducersを使用:
 
 ```typescript
-// Translation Context
+// 翻訳コンテキスト
 interface TranslationState {
   sourceText: string;
   targetText: string;
@@ -68,7 +68,7 @@ interface TranslationState {
   error: string | null;
 }
 
-// Settings Context
+// 設定コンテキスト
 interface SettingsState {
   apiKeys: Record<string, string>;
   defaultLanguages: {
@@ -80,48 +80,48 @@ interface SettingsState {
 }
 ```
 
-### 2.3 React Router v7 Data Mode
+### 2.3 React Router v7 データモード
 ```typescript
-// Route definitions with data loaders
+// データローダー付きルート定義
 export const routes: RouteObject[] = [
   {
     path: "/",
     Component: Home,
-    loader: homeLoader, // Preload recent translations
+    loader: homeLoader, // 最近の翻訳をプリロード
   },
   {
     path: "/history",
     Component: History,
-    loader: historyLoader, // Paginated history data
+    loader: historyLoader, // ページネーション付き履歴データ
   },
   {
     path: "/settings",
     Component: Settings,
-    loader: settingsLoader, // Current configuration
+    loader: settingsLoader, // 現在の設定
   },
 ];
 ```
 
-## 3. Backend Architecture (Rust)
+## 3. バックエンドアーキテクチャ (Rust)
 
-### 3.1 Tauri Command Structure
+### 3.1 Tauriコマンド構造
 ```rust
 // src-tauri/src/commands/
-mod translation;  // Translation-related commands
-mod database;     // Database operations
-mod clipboard;    // Clipboard integration
-mod settings;     // Configuration management
+mod translation;  // 翻訳関連コマンド
+mod database;     // データベース操作
+mod clipboard;    // クリップボード統合
+mod settings;     // 設定管理
 
-// Main command exports
+// メインコマンドエクスポート
 pub use translation::*;
 pub use database::*;
 pub use clipboard::*;
 pub use settings::*;
 ```
 
-### 3.2 Core Services
+### 3.2 コアサービス
 
-#### Translation Service
+#### 翻訳サービス
 ```rust
 pub struct TranslationService {
     providers: HashMap<String, Box<dyn TranslationProvider>>,
@@ -136,11 +136,11 @@ pub async fn translate_text(
     model: String,
     state: tauri::State<'_, AppState>,
 ) -> Result<TranslationResult, String> {
-    // Implementation
+    // 実装
 }
 ```
 
-#### Database Service
+#### データベースサービス
 ```rust
 pub struct Database {
     connection: Arc<Mutex<Connection>>,
@@ -153,7 +153,7 @@ impl Database {
 }
 ```
 
-#### Clipboard Service
+#### クリップボードサービス
 ```rust
 #[tauri::command]
 pub async fn get_clipboard_text() -> Result<String, String>;
@@ -165,11 +165,11 @@ pub async fn set_clipboard_text(text: String) -> Result<(), String>;
 pub async fn watch_clipboard() -> Result<(), String>;
 ```
 
-## 4. Database Architecture (SQLite)
+## 4. データベースアーキテクチャ (SQLite)
 
-### 4.1 Schema Design
+### 4.1 スキーマ設計
 ```sql
--- Translations table with full-text search
+-- 全文検索付き翻訳テーブル
 CREATE TABLE translations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_text TEXT NOT NULL,
@@ -180,7 +180,7 @@ CREATE TABLE translations (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_favorite BOOLEAN DEFAULT FALSE,
     
-    -- Full-text search index
+    -- 全文検索インデックス
     UNIQUE(source_text, target_text, source_language, target_language)
 );
 
@@ -190,7 +190,7 @@ CREATE VIRTUAL TABLE translations_fts USING fts5(
     content='translations'
 );
 
--- API configurations with encryption
+-- 暗号化されたAPI設定
 CREATE TABLE api_configs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     model_name TEXT UNIQUE NOT NULL,
@@ -202,7 +202,7 @@ CREATE TABLE api_configs (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- User preferences
+-- ユーザー設定
 CREATE TABLE user_preferences (
     key TEXT PRIMARY KEY,
     value TEXT,
@@ -210,7 +210,7 @@ CREATE TABLE user_preferences (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Language pairs and statistics
+-- 言語ペアと統計
 CREATE TABLE language_stats (
     source_language TEXT,
     target_language TEXT,
@@ -220,7 +220,7 @@ CREATE TABLE language_stats (
 );
 ```
 
-### 4.2 Migration System
+### 4.2 マイグレーションシステム
 ```rust
 pub struct Migration {
     version: u32,
@@ -235,9 +235,9 @@ pub struct MigrationRunner {
 }
 ```
 
-## 5. AI Model Integration
+## 5. AIモデル統合
 
-### 5.1 Provider Trait
+### 5.1 プロバイダートレイト
 ```rust
 #[async_trait]
 pub trait TranslationProvider: Send + Sync {
@@ -252,28 +252,28 @@ pub trait TranslationProvider: Send + Sync {
 }
 ```
 
-### 5.2 Provider Implementations
+### 5.2 プロバイダー実装
 ```rust
-// OpenAI GPT Provider
+// OpenAI GPTプロバイダー
 pub struct OpenAIProvider {
     client: OpenAIClient,
     config: OpenAIConfig,
 }
 
-// Claude Provider
+// Claudeプロバイダー
 pub struct ClaudeProvider {
     client: ClaudeClient,
     config: ClaudeConfig,
 }
 
-// Gemini Provider
+// Geminiプロバイダー
 pub struct GeminiProvider {
     client: GeminiClient,
     config: GeminiConfig,
 }
 ```
 
-### 5.3 Request/Response Types
+### 5.3 リクエスト/レスポンス型
 ```rust
 pub struct TranslationRequest {
     pub text: String,
@@ -291,9 +291,9 @@ pub struct TranslationResponse {
 }
 ```
 
-## 6. Security Architecture
+## 6. セキュリティアーキテクチャ
 
-### 6.1 API Key Management
+### 6.1 APIキー管理
 ```rust
 pub struct SecureStorage {
     keyring: keyring::Entry,
@@ -306,7 +306,7 @@ impl SecureStorage {
 }
 ```
 
-### 6.2 Data Encryption
+### 6.2 データ暗号化
 ```rust
 pub struct Encryption {
     cipher: ChaCha20Poly1305,
@@ -318,84 +318,84 @@ impl Encryption {
 }
 ```
 
-## 7. Performance Considerations
+## 7. パフォーマンス考慮事項
 
-### 7.1 Frontend Optimization
-- React.memo for expensive components
-- useMemo/useCallback for heavy computations
-- Virtual scrolling for large history lists
-- Debounced input for real-time features
+### 7.1 フロントエンド最適化
+- 高コストコンポーネント用のReact.memo
+- 重い計算処理のためのuseMemo/useCallback
+- 大きな履歴リスト用の仮想スクロール
+- リアルタイム機能のためのデバウンス入力
 
-### 7.2 Backend Optimization
-- Connection pooling for database
-- Async/await throughout for non-blocking operations
-- Caching frequently accessed data
-- Batch database operations
+### 7.2 バックエンド最適化
+- データベースのコネクションプーリング
+- ノンブロッキング操作のための全体的なasync/await
+- 頻繁にアクセスされるデータのキャッシュ
+- バッチデータベース操作
 
-### 7.3 Database Optimization
+### 7.3 データベース最適化
 ```sql
--- Indexes for common queries
+-- 一般的なクエリ用のインデックス
 CREATE INDEX idx_translations_created_at ON translations(created_at DESC);
 CREATE INDEX idx_translations_languages ON translations(source_language, target_language);
 CREATE INDEX idx_translations_model ON translations(ai_model);
 CREATE INDEX idx_translations_favorite ON translations(is_favorite, created_at DESC);
 ```
 
-## 8. Error Handling Strategy
+## 8. エラーハンドリング戦略
 
-### 8.1 Error Types
+### 8.1 エラー型
 ```rust
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("Database error: {0}")]
+    #[error("データベースエラー: {0}")]
     Database(#[from] DatabaseError),
     
-    #[error("Translation provider error: {0}")]
+    #[error("翻訳プロバイダーエラー: {0}")]
     Provider(#[from] ProviderError),
     
-    #[error("Configuration error: {0}")]
+    #[error("設定エラー: {0}")]
     Config(#[from] ConfigError),
     
-    #[error("IO error: {0}")]
+    #[error("IOエラー: {0}")]
     Io(#[from] std::io::Error),
 }
 ```
 
-### 8.2 Error Recovery
-- Automatic retry with exponential backoff
-- Fallback to alternative providers
-- Graceful degradation of features
-- User-friendly error messages
+### 8.2 エラー回復
+- 指数バックオフでの自動再試行
+- 代替プロバイダーへのフォールバック
+- 機能の段階的劣化
+- ユーザーフレンドリーなエラーメッセージ
 
-## 9. Testing Strategy
+## 9. テスト戦略
 
-### 9.1 Frontend Testing
-- Unit tests with Jest/Vitest
-- Component testing with React Testing Library
-- Integration tests for user workflows
-- E2E tests with Playwright
+### 9.1 フロントエンドテスト
+- Jest/Vitestでの単体テスト
+- React Testing Libraryでのコンポーネントテスト
+- ユーザーワークフローの統合テスト
+- PlaywrightでのE2Eテスト
 
-### 9.2 Backend Testing
-- Unit tests for individual functions
-- Integration tests for database operations
-- Mock testing for external APIs
-- Property-based testing for complex logic
+### 9.2 バックエンドテスト
+- 個別関数の単体テスト
+- データベース操作の統合テスト
+- 外部APIのモックテスト
+- 複雑なロジックのプロパティベーステスト
 
-## 10. Deployment Architecture
+## 10. デプロイメントアーキテクチャ
 
-### 10.1 Build Process
+### 10.1 ビルドプロセス
 ```bash
-# Frontend build
+# フロントエンドビルド
 pnpm build
 
-# Tauri build for multiple platforms
+# 複数プラットフォーム用のTauriビルド
 pnpm tauri build --target x86_64-pc-windows-msvc
 pnpm tauri build --target x86_64-apple-darwin
 pnpm tauri build --target x86_64-unknown-linux-gnu
 ```
 
-### 10.2 Distribution
-- GitHub Releases for automatic updates
-- Code signing for security
-- Platform-specific installers
-- Auto-updater integration
+### 10.2 配布
+- 自動更新のためのGitHub Releases
+- セキュリティのためのコード署名
+- プラットフォーム固有のインストーラー
+- 自動更新機能の統合
