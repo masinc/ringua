@@ -4,25 +4,44 @@
 
 > **注意**: このファイルには英語版 `CLAUDE.md` があります。このファイルを更新する際は、両方のバージョンを同期してください。
 
+## ドキュメントファイル
+
+このプロジェクトは英語と日本語の両方で包括的なドキュメントを管理しています。これらのファイルを扱う際は、最適なClaude Code統合のために**常に@参照を使用**してください。
+
+### 利用可能なドキュメント
+
+- **プロジェクト概要**: `@README.md` / `@README.ja.md`
+- **アプリケーション仕様書**: `@docs/specification.md` / `@docs/specification.ja.md`  
+- **技術アーキテクチャ**: `@docs/architecture.md` / `@docs/architecture.ja.md`
+
+### ドキュメントを参照すべきタイミング
+
+#### 作業開始前に読むべき
+- **@README.md**: プロジェクト概要、セットアップ手順、基本理解のため
+- **@docs/specification.md**: 新機能実装、UI変更、ユーザー向け機能開発前
+- **@docs/architecture.md**: アーキテクチャ決定、新サービス追加、コアシステムリファクタリング前
+
+#### 開発中に読むべき
+- **@docs/specification.md**: 機能要件、ユーザーフロー、データモデルが不明な場合
+- **@docs/architecture.md**: データベース操作、API統合、コンポーネント間通信実装時
+
+#### ドキュメントを更新すべきタイミング
+- **@README.md**: 新しい依存関係追加、セットアップ手順変更、プロジェクト構造変更時
+- **@docs/specification.md**: 機能追加・変更、ユーザーインターフェース変更、データ要件変更時
+- **@docs/architecture.md**: 新サービス追加、データベーススキーマ変更、API統合変更時
+
+### ドキュメント同期ルール
+
+1. **ドキュメント変更時は必ず両言語版を更新**
+2. **プロンプトで@参照を使用**（例："@docs/specification.md によるとユーザーフローは..."）
+3. **既存機能について質問する前に関連ドキュメントを読む**
+4. **重要な変更実装後は即座にドキュメントを更新**
+
 ## プロジェクト概要
 
-これはReact、TypeScript、RustでビルドされたTauriデスクトップアプリケーションです。アプリケーションは以下を使用しています：
-- **フロントエンド**: Webフロントエンド用のReact with Vite（TypeScript）
-- **ルーティング**: データローディング機能付きクライアントサイドナビゲーション用のReact Router v7（データモード）
-- **バックエンド**: ネイティブデスクトップ機能用のRust with Tauri
-- **パッケージマネージャー**: pnpm（ワークスペース設定済み）
+**Ringua** - クリップボード統合機能付きAI翻訳デスクトップアプリケーション。詳細は `@README.ja.md` を参照。
 
-## アーキテクチャ
-
-- `src/` - Reactフロントエンドコード（TypeScript）
-  - `src/routes.tsx` - React Routerのルート定義
-  - `src/pages/` - データローダー付きルートコンポーネント
-  - `src/main.tsx` - Router設定を含むアプリケーションエントリーポイント
-- `src-tauri/` - Rustバックエンドコード
-  - `src-tauri/src/lib.rs` - メインのTauriコマンドとアプリケーション設定
-  - `src-tauri/tauri.conf.json` - Tauri設定
-- フロントエンドはTauriの`invoke()` APIを介してRustバックエンドと通信
-- クライアントサイドルーティングは`createBrowserRouter`とデータローダーを使用してReact Router v7で処理
+**主要技術**: Tauri + React + TypeScript + Rust + React Router v7 データモード + SQLite
 
 ## 共通コマンド
 
@@ -97,33 +116,17 @@ Context7は、現在のバージョン固有のドキュメントとコード例
 
 ## React Router v7 データモード
 
-このプロジェクトは、データローディングやアクションなどの高度な機能を有効にするReact Router v7のデータモードを使用しています。
+**重要**: このプロジェクトはReact Router v7の**データモード**を使用（宣言的モードではない）。
 
-### キーコンセプト
-- **データモード**: ルートは`createBrowserRouter`を使用してReactレンダリングの外側で設定されます
-- **ローダー**: ルートコンポーネントがレンダリングされる前にデータを取得するために実行される関数
-- **データローディング**: クライアント上でのサーバーサイドスタイルのデータローディングパターン
+ルートは`createBrowserRouter`とデータローダーを使用。詳細なルーティングパターンは `@docs/architecture.ja.md` を参照。
 
-### ルート構造
-ルートは`RouteObject`型を使用して`src/routes.tsx`で定義されます：
-```typescript
-{
-  path: "/about",
-  Component: About,
-  loader: aboutLoader,  // データローディング関数
-}
-```
+### 簡単なルート追加
+1. `src/pages/`に`loader`関数付きコンポーネントを作成
+2. `src/routes.tsx`に追加
 
-### 新しいルートの追加
-1. `src/pages/`にルートコンポーネントを作成
-2. データ取得用の`loader`関数をエクスポート
-3. `src/routes.tsx`にルート設定を追加
+## 主要開発ファイル
 
-## 重要なファイル
-
-- `src-tauri/tauri.conf.json` - ウィンドウ設定、ビルドコマンド、セキュリティポリシーを含むTauriアプリ設定
-- `src/App.tsx` - Tauriコマンド呼び出しとナビゲーションを実演するメインReactコンポーネント
-- `src/main.tsx` - React Router設定を含むアプリケーションエントリーポイント
-- `src/routes.tsx` - React Routerのルート定義と設定
-- `src/pages/` - データローダー付きルートコンポーネント
-- `src-tauri/src/lib.rs` - Tauriコマンド定義とアプリ初期化
+- `src/routes.tsx` - React Routerルート定義
+- `src/main.tsx` - Router設定付きアプリケーションエントリーポイント
+- `src-tauri/src/lib.rs` - Tauriコマンド定義
+- `src-tauri/tauri.conf.json` - Tauri設定

@@ -4,25 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Note**: This file has a Japanese version at `CLAUDE.ja.md`. When updating this file, please keep both versions synchronized.
 
+## Documentation Files
+
+This project maintains comprehensive documentation in both English and Japanese. **Always use @ references** when working with these files for optimal Claude Code integration.
+
+### Available Documentation
+
+- **Project Overview**: `@README.md` / `@README.ja.md`
+- **Application Specification**: `@docs/specification.md` / `@docs/specification.ja.md`  
+- **Technical Architecture**: `@docs/architecture.md` / `@docs/architecture.ja.md`
+
+### When to Reference Documentation
+
+#### Read Before Starting Work
+- **@README.md**: For project overview, setup instructions, and basic understanding
+- **@docs/specification.md**: Before implementing new features, UI changes, or user-facing functionality
+- **@docs/architecture.md**: Before making architectural decisions, adding new services, or refactoring core systems
+
+#### Read During Development
+- **@docs/specification.md**: When unclear about feature requirements, user flows, or data models
+- **@docs/architecture.md**: When implementing database operations, API integrations, or cross-component communication
+
+#### Update Documentation When
+- **@README.md**: Adding new dependencies, changing setup process, or modifying project structure
+- **@docs/specification.md**: Adding/changing features, modifying user interface, or altering data requirements
+- **@docs/architecture.md**: Adding new services, changing database schema, or modifying API integrations
+
+### Documentation Synchronization Rules
+
+1. **Always update both language versions** when modifying any documentation
+2. **Use @ references** in your prompts (e.g., "@docs/specification.md shows the user flow...")
+3. **Read relevant docs first** before asking questions about existing functionality
+4. **Update docs immediately** after implementing significant changes
+
 ## Project Overview
 
-This is a Tauri desktop application built with React, TypeScript, and Rust. The application uses:
-- **Frontend**: React with Vite for the web frontend (TypeScript)
-- **Routing**: React Router v7 in Data Mode for client-side navigation with data loading
-- **Backend**: Rust with Tauri for native desktop functionality
-- **Package Manager**: pnpm (configured with workspace)
+**Ringua** - AI-powered desktop translation application with clipboard integration. See `@README.md` for detailed overview.
 
-## Architecture
-
-- `src/` - React frontend code (TypeScript)
-  - `src/routes.tsx` - React Router route definitions
-  - `src/pages/` - Route components with data loaders
-  - `src/main.tsx` - Application entry point with Router setup
-- `src-tauri/` - Rust backend code
-  - `src-tauri/src/lib.rs` - Main Tauri commands and application setup
-  - `src-tauri/tauri.conf.json` - Tauri configuration
-- Frontend communicates with Rust backend via Tauri's `invoke()` API
-- Client-side routing handled by React Router v7 with `createBrowserRouter` and data loaders
+**Key Technologies**: Tauri + React + TypeScript + Rust + React Router v7 Data Mode + SQLite
 
 ## Common Commands
 
@@ -97,33 +116,17 @@ This ensures that code suggestions and examples are always current and compatibl
 
 ## React Router v7 Data Mode
 
-This project uses React Router v7 in Data Mode, which enables advanced features like data loading and actions.
+**Important**: This project uses React Router v7 in **Data Mode** (not Declarative Mode). 
 
-### Key Concepts
-- **Data Mode**: Routes are configured with `createBrowserRouter` outside of React rendering
-- **Loaders**: Functions that run before route components render to fetch data
-- **Data Loading**: Server-side style data loading patterns on the client
+Routes use `createBrowserRouter` with data loaders. See `@docs/architecture.md` for detailed routing patterns.
 
-### Route Structure
-Routes are defined in `src/routes.tsx` using the `RouteObject` type:
-```typescript
-{
-  path: "/about",
-  Component: About,
-  loader: aboutLoader,  // Data loading function
-}
-```
+### Quick Route Addition
+1. Create component in `src/pages/` with `loader` function
+2. Add to `src/routes.tsx`
 
-### Adding New Routes
-1. Create route component in `src/pages/`
-2. Export a `loader` function for data fetching
-3. Add route configuration to `src/routes.tsx`
+## Key Development Files
 
-## Key Files
-
-- `src-tauri/tauri.conf.json` - Tauri app configuration including window settings, build commands, and security policies
-- `src/App.tsx` - Main React component demonstrating Tauri command invocation and navigation
-- `src/main.tsx` - Application entry point with React Router setup
-- `src/routes.tsx` - React Router route definitions and configuration
-- `src/pages/` - Route components with data loaders
-- `src-tauri/src/lib.rs` - Tauri command definitions and app initialization
+- `src/routes.tsx` - React Router route definitions
+- `src/main.tsx` - Application entry point with Router setup  
+- `src-tauri/src/lib.rs` - Tauri command definitions
+- `src-tauri/tauri.conf.json` - Tauri configuration
