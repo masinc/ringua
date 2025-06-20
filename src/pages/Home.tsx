@@ -166,72 +166,75 @@ export default function Home() {
 
         {/* 翻訳エリア */}
         <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-2 min-h-0">
-          <Card className="flex flex-col">
-            <CardHeader className="pb-2 pt-3 px-3 flex-shrink-0">
+          <Card className="flex flex-col border-0 shadow-sm">
+            <CardHeader className="pb-1 pt-2 px-2 flex-shrink-0">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">原文</CardTitle>
+                <CardTitle className="text-sm font-medium">原文</CardTitle>
                 <div className="flex items-center gap-1">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="h-6 w-6 p-0"
                     onClick={() => setState(prev => ({ ...prev, sourceText: "" }))}
                     disabled={!state.sourceText}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="h-6 w-6 p-0"
                     onClick={() => handleCopyToClipboard(state.sourceText)}
                     disabled={!state.sourceText}
                   >
-                    <Copy className="h-4 w-4" />
+                    <Copy className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-3 pt-0">
+            <CardContent className="flex-1 flex flex-col p-1">
               <Textarea
                 value={state.sourceText}
                 onChange={(e) => setState(prev => ({ ...prev, sourceText: e.target.value }))}
                 placeholder="翻訳したいテキストを入力してください..."
-                className="flex-1 resize-none border-0 p-3 focus-visible:ring-0"
+                className="flex-1 resize-none border-0 p-2 focus-visible:ring-0 rounded-none"
               />
-              <div className="flex justify-between items-center mt-1">
-                <Badge variant="secondary" className="text-xs">
+              <div className="flex justify-end px-2 pb-1">
+                <Badge variant="secondary" className="text-xs h-4">
                   {state.sourceText.length} 文字
                 </Badge>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="flex flex-col">
-            <CardHeader className="pb-2 pt-3 px-3 flex-shrink-0">
+          <Card className="flex flex-col border-0 shadow-sm">
+            <CardHeader className="pb-1 pt-2 px-2 flex-shrink-0">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">翻訳結果</CardTitle>
+                <CardTitle className="text-sm font-medium">翻訳結果</CardTitle>
                 <div className="flex items-center gap-1">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="h-6 w-6 p-0"
                     onClick={() => handleCopyToClipboard(state.targetText)}
                     disabled={!state.targetText}
                   >
-                    <Copy className="h-4 w-4" />
+                    <Copy className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-3 pt-0">
+            <CardContent className="flex-1 flex flex-col p-1">
               <Textarea
                 value={state.targetText}
                 readOnly
                 placeholder={state.isTranslating ? "翻訳中..." : "翻訳結果がここに表示されます"}
-                className="flex-1 resize-none bg-muted/50 border-0 p-3 focus-visible:ring-0"
+                className="flex-1 resize-none bg-muted/50 border-0 p-2 focus-visible:ring-0 rounded-none"
               />
               {state.isTranslating && (
-                <div className="flex items-center gap-2 mt-1 text-primary">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm">翻訳中...</span>
+                <div className="flex items-center gap-2 px-2 pb-1 text-primary">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="text-xs">翻訳中...</span>
                 </div>
               )}
             </CardContent>
