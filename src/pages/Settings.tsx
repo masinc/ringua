@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Save, 
   Download, 
@@ -20,7 +21,10 @@ import {
   Globe,
   Palette,
   Keyboard,
-  Bell
+  Bell,
+  Settings as SettingsIcon,
+  Plus,
+  Trash2
 } from "lucide-react";
 
 interface ModelConfig {
@@ -116,6 +120,7 @@ export default function Settings() {
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingProvider, setEditingProvider] = useState<string | null>(null);
 
   useEffect(() => {
     // 設定をローカルストレージから読み込み
@@ -196,6 +201,20 @@ export default function Settings() {
       return provider;
     });
     updateSettings({ providers: updatedProviders });
+  };
+
+  const getProviderStatus = (provider: ProviderConfig) => {
+    if (!provider.enabled) return "無効";
+    if (!provider.apiKey) return "APIキー未設定";
+    return "設定済み";
+  };
+
+  const getEnabledModelsCount = (provider: ProviderConfig) => {
+    return provider.models?.filter(model => model.enabled).length || 0;
+  };
+
+  const getDefaultModel = (provider: ProviderConfig) => {
+    return provider.models?.find(model => model.isDefault)?.name || provider.models?.find(model => model.enabled)?.name || "なし";
   };
 
   const updateLanguage = (type: "source" | "target", value: string) => {
@@ -319,77 +338,109 @@ export default function Settings() {
           <TabsContent value="api" className="space-y-4 mt-4">
             {settings.providers?.map((provider) => (
               <Card key={provider.id}>
-                <CardHeader className="pb-3">
+                <CardContent className="p-4">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base">{provider.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        APIキーとモデル設定
-                      </p>
-                    </div>
-                    <Switch
-                      checked={provider.enabled}
-                      onCheckedChange={(enabled) => updateProviderEnabled(provider.id, enabled)}
-                    />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={`${provider.id}-key`} className="text-sm font-medium">
-                      API Key
-                    </Label>
-                    <Input
-                      id={`${provider.id}-key`}
-                      type="password"
-                      placeholder={
-                        provider.id === "openai" ? "sk-..." :
-                        provider.id === "claude" ? "sk-ant-..." :
-                        "API Key"
-                      }
-                      value={provider.apiKey}
-                      onChange={(e) => updateProviderApiKey(provider.id, e.target.value)}
-                      disabled={!provider.enabled}
-                    />
-                  </div>
-                  
-                  {provider.enabled && (
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">利用可能モデル</Label>
-                      <div className="space-y-2">
-                        {provider.models?.map((model) => (
-                          <div key={model.id} className="flex items-center justify-between p-2 border rounded">
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`${provider.id}-${model.id}`}
-                                checked={model.enabled}
-                                onCheckedChange={(enabled) => 
-                                  updateModelEnabled(provider.id, model.id, enabled as boolean)
-                                }
-                              />
-                              <label 
-                                htmlFor={`${provider.id}-${model.id}`}
-                                className="text-sm font-medium"
-                              >
-                                {model.name}
-                              </label>
-                            </div>
-                            {model.enabled && (
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  name={`default-${provider.id}`}
-                                  checked={model.isDefault || false}
-                                  onChange={() => updateModelDefault(provider.id, model.id)}
-                                  className="h-3 w-3"
-                                />
-                                <span className="text-xs text-muted-foreground">デフォルト</span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <CardTitle className="text-base">{provider.name}</CardTitle>
+                        <Switch
+                          checked={provider.enabled}
+                          onCheckedChange={(enabled) => updateProviderEnabled(provider.id, enabled)}
+                        />
+                      </div>
+                      <div className="mt-1 space-y-1">
+                        <p className="text-sm text-muted-foreground">
+                          状態: {getProviderStatus(provider)}
+                        </p>
+                        {provider.enabled && (
+                          <p className="text-sm text-muted-foreground">
+                            使用中: {getDefaultModel(provider)} ({getEnabledModelsCount(provider)}モデル有効)
+                          </p>
+                        )}
                       </div>
                     </div>
-                  )}
+                    
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!provider.enabled}
+                          className="gap-1"
+                        >
+                          <SettingsIcon className="h-3 w-3" />
+                          設定
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>{provider.name} 設定</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-6">
+                          {/* APIキー設定 */}
+                          <div className="space-y-3">
+                            <h3 className="text-sm font-medium">APIキー</h3>
+                            <div className="space-y-2">
+                              <Label htmlFor={`modal-${provider.id}-key`} className="text-sm">
+                                API Key
+                              </Label>
+                              <Input
+                                id={`modal-${provider.id}-key`}
+                                type="password"
+                                placeholder={
+                                  provider.id === "openai" ? "sk-..." :
+                                  provider.id === "claude" ? "sk-ant-..." :
+                                  "API Key"
+                                }
+                                value={provider.apiKey}
+                                onChange={(e) => updateProviderApiKey(provider.id, e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          {/* モデル設定 */}
+                          <div className="space-y-3">
+                            <h3 className="text-sm font-medium">モデル設定</h3>
+                            <div className="space-y-3 max-h-64 overflow-y-auto">
+                              {provider.models?.map((model) => (
+                                <div key={model.id} className="flex items-center justify-between p-3 border rounded">
+                                  <div className="flex items-center space-x-3">
+                                    <Checkbox
+                                      id={`modal-${provider.id}-${model.id}`}
+                                      checked={model.enabled}
+                                      onCheckedChange={(enabled) => 
+                                        updateModelEnabled(provider.id, model.id, enabled as boolean)
+                                      }
+                                    />
+                                    <label 
+                                      htmlFor={`modal-${provider.id}-${model.id}`}
+                                      className="text-sm font-medium"
+                                    >
+                                      {model.name}
+                                    </label>
+                                  </div>
+                                  {model.enabled && (
+                                    <div className="flex items-center space-x-2">
+                                      <input
+                                        type="radio"
+                                        name={`modal-default-${provider.id}`}
+                                        checked={model.isDefault || false}
+                                        onChange={() => updateModelDefault(provider.id, model.id)}
+                                        className="h-4 w-4"
+                                      />
+                                      <span className="text-xs text-muted-foreground">デフォルト</span>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </CardContent>
               </Card>
             ))}
