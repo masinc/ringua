@@ -57,6 +57,14 @@ export default function Layout({ children }: LayoutProps) {
               })}
             </nav>
           </div>
+
+          <Separator />
+          
+          <div className="p-4">
+            <p className="text-xs text-muted-foreground text-center">
+              v0.1.2
+            </p>
+          </div>
         </div>
       </nav>
 
