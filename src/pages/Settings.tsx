@@ -50,6 +50,7 @@ interface ProviderConfig {
 
 interface UserSettings {
   providers: ProviderConfig[];
+  defaultModel: string; // "providerId:modelId" 形式
   defaultLanguages: {
     source: string;
     target: string;
@@ -96,6 +97,7 @@ const DEFAULT_PROVIDERS: ProviderConfig[] = [
 
 const DEFAULT_SETTINGS: UserSettings = {
   providers: DEFAULT_PROVIDERS,
+  defaultModel: "openai:gpt-4o", // デフォルトはOpenAIのGPT-4o
   defaultLanguages: {
     source: "auto",
     target: "ja",
@@ -132,7 +134,8 @@ export default function Settings() {
         setSettings({
           ...DEFAULT_SETTINGS,
           ...parsed,
-          providers: parsed.providers || DEFAULT_PROVIDERS
+          providers: parsed.providers || DEFAULT_PROVIDERS,
+          defaultModel: parsed.defaultModel || DEFAULT_SETTINGS.defaultModel
         });
       } catch (error) {
         console.error("Failed to load settings:", error);
@@ -188,19 +191,9 @@ export default function Settings() {
     updateSettings({ providers: updatedProviders });
   };
 
-  const updateModelDefault = (providerId: string, modelId: string) => {
-    if (!settings.providers) return;
-    const updatedProviders = settings.providers.map(provider => {
-      if (provider.id === providerId) {
-        const updatedModels = provider.models?.map(model => ({
-          ...model,
-          isDefault: model.id === modelId
-        })) || [];
-        return { ...provider, models: updatedModels };
-      }
-      return provider;
-    });
-    updateSettings({ providers: updatedProviders });
+  const updateDefaultModel = (providerId: string, modelId: string) => {
+    // グローバルデフォルトモデルを設定
+    updateSettings({ defaultModel: `${providerId}:${modelId}` });
   };
 
   const getProviderStatus = (provider: ProviderConfig) => {
@@ -214,7 +207,19 @@ export default function Settings() {
   };
 
   const getDefaultModel = (provider: ProviderConfig) => {
-    return provider.models?.find(model => model.isDefault)?.name || provider.models?.find(model => model.enabled)?.name || "なし";
+    const defaultModelKey = settings.defaultModel;
+    const [defaultProviderId, defaultModelId] = defaultModelKey.split(":");
+    
+    if (provider.id === defaultProviderId) {
+      const defaultModel = provider.models?.find(model => model.id === defaultModelId && model.enabled);
+      if (defaultModel) return `${defaultModel.name} (デフォルト)`;
+    }
+    
+    return provider.models?.find(model => model.enabled)?.name || "なし";
+  };
+
+  const isDefaultModel = (providerId: string, modelId: string) => {
+    return settings.defaultModel === `${providerId}:${modelId}`;
   };
 
   const updateLanguage = (type: "source" | "target", value: string) => {
@@ -425,12 +430,14 @@ export default function Settings() {
                                     <div className="flex items-center space-x-2">
                                       <input
                                         type="radio"
-                                        name={`modal-default-${provider.id}`}
-                                        checked={model.isDefault || false}
-                                        onChange={() => updateModelDefault(provider.id, model.id)}
+                                        name="global-default-model"
+                                        checked={isDefaultModel(provider.id, model.id)}
+                                        onChange={() => updateDefaultModel(provider.id, model.id)}
                                         className="h-4 w-4"
                                       />
-                                      <span className="text-xs text-muted-foreground">デフォルト</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {isDefaultModel(provider.id, model.id) ? "グローバルデフォルト" : "デフォルトに設定"}
+                                      </span>
                                     </div>
                                   )}
                                 </div>
