@@ -3,11 +3,23 @@ import Layout from "../components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { 
   Save, 
   Download, 
+  Upload,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Key,
+  Globe,
+  Palette,
+  Keyboard,
+  Bell
 } from "lucide-react";
 
 interface UserSettings {
@@ -32,13 +44,24 @@ const DEFAULT_SETTINGS: UserSettings = {
     gemini: "",
   },
   defaultLanguages: {
-    source: "ja",
-    target: "en",
+    source: "auto",
+    target: "ja",
   },
   theme: "system",
   autoSave: true,
   notifications: true,
 };
+
+const LANGUAGES = [
+  { code: "auto", name: "自動検出" },
+  { code: "ja", name: "日本語" },
+  { code: "en", name: "English" },
+  { code: "zh", name: "中文" },
+  { code: "ko", name: "한국어" },
+  { code: "es", name: "Español" },
+  { code: "fr", name: "Français" },
+  { code: "de", name: "Deutsch" },
+];
 
 export default function Settings() {
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
@@ -69,6 +92,23 @@ export default function Settings() {
     }
   };
 
+  const updateSettings = (newSettings: Partial<UserSettings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
+    setHasChanges(true);
+  };
+
+  const updateApiKey = (provider: keyof UserSettings["apiKeys"], value: string) => {
+    updateSettings({
+      apiKeys: { ...settings.apiKeys, [provider]: value }
+    });
+  };
+
+  const updateLanguage = (type: "source" | "target", value: string) => {
+    updateSettings({
+      defaultLanguages: { ...settings.defaultLanguages, [type]: value }
+    });
+  };
+
   const exportSettings = () => {
     const dataStr = JSON.stringify(settings, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
@@ -82,81 +122,274 @@ export default function Settings() {
     URL.revokeObjectURL(url);
   };
 
+  const importSettings = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedSettings = JSON.parse(e.target?.result as string);
+            setSettings({ ...DEFAULT_SETTINGS, ...importedSettings });
+            setHasChanges(true);
+          } catch (error) {
+            console.error("Failed to import settings:", error);
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
   return (
     <Layout>
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">設定</h1>
-              <p className="text-muted-foreground">アプリケーションの設定を管理</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={exportSettings}
-                className="gap-2"
-              >
-                <Download className="h-4 w-4" />
-                エクスポート
-              </Button>
-              <Button
-                onClick={saveSettings}
-                disabled={!hasChanges || isSaving}
-                className="gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    保存中...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    設定を保存
-                  </>
-                )}
-              </Button>
-            </div>
+      <div className="flex flex-col h-full p-2 max-w-5xl mx-auto">
+        {/* ヘッダー */}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold">設定</h1>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={importSettings}
+              className="gap-1"
+            >
+              <Upload className="h-3 w-3" />
+              インポート
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportSettings}
+              className="gap-1"
+            >
+              <Download className="h-3 w-3" />
+              エクスポート
+            </Button>
+            <Button
+              size="sm"
+              onClick={saveSettings}
+              disabled={!hasChanges || isSaving}
+              className="gap-1"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  保存中
+                </>
+              ) : (
+                <>
+                  <Save className="h-3 w-3" />
+                  保存
+                </>
+              )}
+            </Button>
           </div>
+        </div>
 
-          {hasChanges && (
-            <Alert className="mb-6">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                未保存の変更があります。設定を保存してください。
-              </AlertDescription>
-            </Alert>
-          )}
+        {hasChanges && (
+          <Alert className="mb-4">
+            <AlertTriangle className="h-3 w-3" />
+            <AlertDescription className="text-sm">
+              未保存の変更があります。
+            </AlertDescription>
+          </Alert>
+        )}
 
-          <div className="space-y-6">
+        {/* タブ設定 */}
+        <Tabs defaultValue="api" className="flex-1">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="api" className="gap-1">
+              <Key className="h-3 w-3" />
+              API
+            </TabsTrigger>
+            <TabsTrigger value="language" className="gap-1">
+              <Globe className="h-3 w-3" />
+              言語
+            </TabsTrigger>
+            <TabsTrigger value="appearance" className="gap-1">
+              <Palette className="h-3 w-3" />
+              外観
+            </TabsTrigger>
+            <TabsTrigger value="general" className="gap-1">
+              <Bell className="h-3 w-3" />
+              一般
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="api" className="space-y-4 mt-4">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  🚧 設定画面は開発中です
-                </CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">APIキー設定</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  各AIモデルのAPIキーを設定してください
+                </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  以下の設定機能を開発予定です：
-                </p>
-                <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-                  <li>APIキー設定（OpenAI、Claude、Gemini）</li>
-                  <li>デフォルト言語設定</li>
-                  <li>テーマ設定（ライト・ダーク・システム）</li>
-                  <li>キーボードショートカット設定</li>
-                  <li>自動保存・通知設定</li>
-                  <li>設定のインポート・エクスポート</li>
-                </ul>
-                <div className="pt-4">
-                  <p className="text-sm text-muted-foreground">
-                    現在は基本的なエクスポート機能のみ利用可能です。
-                  </p>
+                <div className="space-y-2">
+                  <Label htmlFor="openai-key" className="text-sm font-medium">
+                    OpenAI API Key
+                  </Label>
+                  <Input
+                    id="openai-key"
+                    type="password"
+                    placeholder="sk-..."
+                    value={settings.apiKeys.openai}
+                    onChange={(e) => updateApiKey("openai", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="claude-key" className="text-sm font-medium">
+                    Anthropic Claude API Key
+                  </Label>
+                  <Input
+                    id="claude-key"
+                    type="password"
+                    placeholder="sk-ant-..."
+                    value={settings.apiKeys.claude}
+                    onChange={(e) => updateApiKey("claude", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gemini-key" className="text-sm font-medium">
+                    Google Gemini API Key
+                  </Label>
+                  <Input
+                    id="gemini-key"
+                    type="password"
+                    placeholder="AI..."
+                    value={settings.apiKeys.gemini}
+                    onChange={(e) => updateApiKey("gemini", e.target.value)}
+                  />
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="language" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">デフォルト言語設定</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  翻訳画面で使用するデフォルト言語を設定
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">翻訳元言語</Label>
+                    <Select
+                      value={settings.defaultLanguages.source}
+                      onValueChange={(value) => updateLanguage("source", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGES.map(lang => (
+                          <SelectItem key={lang.code} value={lang.code}>
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">翻訳先言語</Label>
+                    <Select
+                      value={settings.defaultLanguages.target}
+                      onValueChange={(value) => updateLanguage("target", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGES.filter(lang => lang.code !== "auto").map(lang => (
+                          <SelectItem key={lang.code} value={lang.code}>
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appearance" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">テーマ設定</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  アプリケーションの外観を設定
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">テーマ</Label>
+                  <Select
+                    value={settings.theme}
+                    onValueChange={(value: "light" | "dark" | "system") => 
+                      updateSettings({ theme: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">ライト</SelectItem>
+                      <SelectItem value="dark">ダーク</SelectItem>
+                      <SelectItem value="system">システム設定に従う</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="general" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">一般設定</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  アプリケーションの動作設定
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">自動保存</Label>
+                    <p className="text-xs text-muted-foreground">
+                      翻訳履歴を自動的に保存
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings.autoSave}
+                    onCheckedChange={(checked) => updateSettings({ autoSave: checked })}
+                  />
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">通知</Label>
+                    <p className="text-xs text-muted-foreground">
+                      翻訳完了時に通知を表示
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings.notifications}
+                    onCheckedChange={(checked) => updateSettings({ notifications: checked })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );
