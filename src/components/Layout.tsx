@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Globe, History, Settings, Info, Terminal } from "lucide-react";
+import { Globe, History, Settings } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,7 +16,6 @@ export default function Layout({ children }: LayoutProps) {
     { path: "/", label: "翻訳", icon: Globe },
     { path: "/history", label: "履歴", icon: History },
     { path: "/settings", label: "設定", icon: Settings },
-    { path: "/about", label: "について", icon: Info },
   ];
 
   return (
@@ -57,22 +56,6 @@ export default function Layout({ children }: LayoutProps) {
                 );
               })}
             </nav>
-          </div>
-
-          <Separator />
-          
-          <div className="p-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-start text-xs"
-              asChild
-            >
-              <Link to="/demo">
-                <Terminal className="mr-2 h-3 w-3" />
-                デモページ
-              </Link>
-            </Button>
           </div>
         </div>
       </nav>
