@@ -1,6 +1,7 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
+import { Link } from "react-router";
 import "./App.css";
 
 function App() {
@@ -14,7 +15,12 @@ function App() {
 
   return (
     <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+      <h1>Welcome to Tauri + React + React Router</h1>
+
+      <nav style={{ marginBottom: "20px" }}>
+        <Link to="/" style={{ marginRight: "10px" }}>Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
 
       <div className="row">
         <a href="https://vitejs.dev" target="_blank">
