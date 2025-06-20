@@ -84,179 +84,177 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="mb-8">
-          <div className="flex justify-end mb-6">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="model-select" className="text-sm font-medium">
-                AIモデル:
-              </Label>
-              <Select 
-                value={state.selectedModel} 
-                onValueChange={(value) => setState(prev => ({ ...prev, selectedModel: value }))}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {AI_MODELS.map(model => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="flex flex-col h-full p-4 max-w-6xl mx-auto">
+        {/* ヘッダー部分 */}
+        <div className="flex justify-end mb-4">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="model-select" className="text-sm font-medium">
+              AIモデル:
+            </Label>
+            <Select 
+              value={state.selectedModel} 
+              onValueChange={(value) => setState(prev => ({ ...prev, selectedModel: value }))}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {AI_MODELS.map(model => (
+                  <SelectItem key={model.id} value={model.id}>
+                    {model.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* 言語選択部分 */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="source-lang" className="text-sm font-medium whitespace-nowrap">
+              翻訳元:
+            </Label>
+            <Select 
+              value={state.sourceLanguage} 
+              onValueChange={(value) => setState(prev => ({ ...prev, sourceLanguage: value }))}
+            >
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="source-lang" className="text-sm font-medium whitespace-nowrap">
-                    翻訳元:
-                  </Label>
-                  <Select 
-                    value={state.sourceLanguage} 
-                    onValueChange={(value) => setState(prev => ({ ...prev, sourceLanguage: value }))}
-                  >
-                    <SelectTrigger className="w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LANGUAGES.map(lang => (
-                        <SelectItem key={lang.code} value={lang.code}>
-                          {lang.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={swapLanguages}
+            disabled={state.sourceLanguage === "auto"}
+            title={state.sourceLanguage === "auto" ? "自動検出時は入れ替えできません" : "言語を入れ替え"}
+          >
+            <ArrowLeftRight className="h-4 w-4" />
+          </Button>
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={swapLanguages}
-                  disabled={state.sourceLanguage === "auto"}
-                  title={state.sourceLanguage === "auto" ? "自動検出時は入れ替えできません" : "言語を入れ替え"}
-                >
-                  <ArrowLeftRight className="h-4 w-4" />
-                </Button>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="target-lang" className="text-sm font-medium whitespace-nowrap">
+              翻訳先:
+            </Label>
+            <Select 
+              value={state.targetLanguage} 
+              onValueChange={(value) => setState(prev => ({ ...prev, targetLanguage: value }))}
+            >
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
+        {/* 翻訳エリア */}
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-0">
+          <Card className="flex flex-col">
+            <CardHeader className="pb-3 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">原文</CardTitle>
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="target-lang" className="text-sm font-medium whitespace-nowrap">
-                    翻訳先:
-                  </Label>
-                  <Select 
-                    value={state.targetLanguage} 
-                    onValueChange={(value) => setState(prev => ({ ...prev, targetLanguage: value }))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setState(prev => ({ ...prev, sourceText: "" }))}
+                    disabled={!state.sourceText}
                   >
-                    <SelectTrigger className="w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LANGUAGES.map(lang => (
-                        <SelectItem key={lang.code} value={lang.code}>
-                          {lang.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCopyToClipboard(state.sourceText)}
+                    disabled={!state.sourceText}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">原文</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setState(prev => ({ ...prev, sourceText: "" }))}
-                          disabled={!state.sourceText}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleCopyToClipboard(state.sourceText)}
-                          disabled={!state.sourceText}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={state.sourceText}
-                      onChange={(e) => setState(prev => ({ ...prev, sourceText: e.target.value }))}
-                      placeholder="翻訳したいテキストを入力してください..."
-                      className="h-[calc(50vh-200px)] min-h-32 resize-none"
-                    />
-                    <div className="flex justify-between items-center mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {state.sourceText.length} 文字
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">翻訳結果</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleCopyToClipboard(state.targetText)}
-                          disabled={!state.targetText}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Textarea
-                      value={state.targetText}
-                      readOnly
-                      placeholder={state.isTranslating ? "翻訳中..." : "翻訳結果がここに表示されます"}
-                      className="h-[calc(50vh-200px)] min-h-32 resize-none bg-muted/50"
-                    />
-                    {state.isTranslating && (
-                      <div className="flex items-center gap-2 mt-2 text-primary">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-sm">翻訳中...</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="flex justify-center mt-6">
-                <Button
-                  onClick={handleTranslate}
-                  disabled={!state.sourceText.trim() || state.isTranslating}
-                  size="lg"
-                  className="px-8"
-                >
-                  {state.isTranslating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      翻訳中...
-                    </>
-                  ) : (
-                    "翻訳する"
-                  )}
-                </Button>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col">
+              <Textarea
+                value={state.sourceText}
+                onChange={(e) => setState(prev => ({ ...prev, sourceText: e.target.value }))}
+                placeholder="翻訳したいテキストを入力してください..."
+                className="flex-1 resize-none"
+              />
+              <div className="flex justify-between items-center mt-2">
+                <Badge variant="secondary" className="text-xs">
+                  {state.sourceText.length} 文字
+                </Badge>
               </div>
             </CardContent>
           </Card>
+
+          <Card className="flex flex-col">
+            <CardHeader className="pb-3 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">翻訳結果</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCopyToClipboard(state.targetText)}
+                    disabled={!state.targetText}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col">
+              <Textarea
+                value={state.targetText}
+                readOnly
+                placeholder={state.isTranslating ? "翻訳中..." : "翻訳結果がここに表示されます"}
+                className="flex-1 resize-none bg-muted/50"
+              />
+              {state.isTranslating && (
+                <div className="flex items-center gap-2 mt-2 text-primary">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">翻訳中...</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 翻訳ボタン */}
+        <div className="flex justify-center mt-4 flex-shrink-0">
+          <Button
+            onClick={handleTranslate}
+            disabled={!state.sourceText.trim() || state.isTranslating}
+            size="lg"
+            className="px-8"
+          >
+            {state.isTranslating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                翻訳中...
+              </>
+            ) : (
+              "翻訳する"
+            )}
+          </Button>
         </div>
       </div>
     </Layout>
