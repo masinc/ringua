@@ -18,6 +18,7 @@ interface TranslationState {
 }
 
 const LANGUAGES = [
+  { code: "auto", name: "自動検出" },
   { code: "ja", name: "日本語" },
   { code: "en", name: "English" },
   { code: "zh", name: "中文" },
@@ -37,8 +38,8 @@ export default function Home() {
   const [state, setState] = useState<TranslationState>({
     sourceText: "",
     targetText: "",
-    sourceLanguage: "ja",
-    targetLanguage: "en",
+    sourceLanguage: "auto",
+    targetLanguage: "ja",
     selectedModel: "openai-gpt4",
     isTranslating: false,
   });
@@ -69,6 +70,9 @@ export default function Home() {
   };
 
   const swapLanguages = () => {
+    // 自動検出の場合は入れ替えしない
+    if (state.sourceLanguage === "auto") return;
+    
     setState(prev => ({
       ...prev,
       sourceLanguage: prev.targetLanguage,
@@ -137,7 +141,8 @@ export default function Home() {
                   variant="outline"
                   size="icon"
                   onClick={swapLanguages}
-                  title="言語を入れ替え"
+                  disabled={state.sourceLanguage === "auto"}
+                  title={state.sourceLanguage === "auto" ? "自動検出時は入れ替えできません" : "言語を入れ替え"}
                 >
                   <ArrowLeftRight className="h-4 w-4" />
                 </Button>
