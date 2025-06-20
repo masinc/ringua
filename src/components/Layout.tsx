@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Globe, History, Settings } from "lucide-react";
 
@@ -20,22 +19,15 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex h-screen bg-background">
-      <nav className="w-64 border-r bg-card">
+      <nav className="w-16 border-r bg-card">
         <div className="flex flex-col h-full">
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Globe className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold text-foreground">Ringua</h1>
-            </div>
-            <p className="text-sm text-muted-foreground">AI Translation</p>
-            <Badge variant="secondary" className="mt-2 text-xs">
-              Beta
-            </Badge>
+          <div className="p-3 flex justify-center">
+            <Globe className="h-6 w-6 text-primary" />
           </div>
           
           <Separator />
           
-          <div className="flex-1 p-4">
+          <div className="flex-1 p-2">
             <nav className="space-y-2">
               {navigation.map(item => {
                 const Icon = item.icon;
@@ -45,12 +37,13 @@ export default function Layout({ children }: LayoutProps) {
                   <Button
                     key={item.path}
                     variant={isActive ? "default" : "ghost"}
-                    className="w-full justify-start"
+                    size="icon"
+                    className="w-full"
+                    title={item.label}
                     asChild
                   >
                     <Link to={item.path}>
-                      <Icon className="mr-2 h-4 w-4" />
-                      {item.label}
+                      <Icon className="h-4 w-4" />
                     </Link>
                   </Button>
                 );
@@ -60,8 +53,8 @@ export default function Layout({ children }: LayoutProps) {
 
           <Separator />
           
-          <div className="p-4">
-            <p className="text-xs text-muted-foreground text-center">
+          <div className="p-2">
+            <p className="text-xs text-muted-foreground text-center transform rotate-90 whitespace-nowrap">
               v0.1.2
             </p>
           </div>
