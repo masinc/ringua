@@ -85,8 +85,63 @@ export default function Home() {
   return (
     <Layout>
       <div className="flex flex-col h-full p-2 max-w-7xl mx-auto">
-        {/* ヘッダー部分 */}
-        <div className="flex justify-end mb-2">
+        {/* 統合コントロール部分 */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="source-lang" className="text-sm font-medium whitespace-nowrap">
+                翻訳元:
+              </Label>
+              <Select 
+                value={state.sourceLanguage} 
+                onValueChange={(value) => setState(prev => ({ ...prev, sourceLanguage: value }))}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={swapLanguages}
+              disabled={state.sourceLanguage === "auto"}
+              title={state.sourceLanguage === "auto" ? "自動検出時は入れ替えできません" : "言語を入れ替え"}
+              className="h-8 w-8"
+            >
+              <ArrowLeftRight className="h-3 w-3" />
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <Label htmlFor="target-lang" className="text-sm font-medium whitespace-nowrap">
+                翻訳先:
+              </Label>
+              <Select 
+                value={state.targetLanguage} 
+                onValueChange={(value) => setState(prev => ({ ...prev, targetLanguage: value }))}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="flex items-center gap-2">
             <Label htmlFor="model-select" className="text-sm font-medium">
               AIモデル:
@@ -95,68 +150,13 @@ export default function Home() {
               value={state.selectedModel} 
               onValueChange={(value) => setState(prev => ({ ...prev, selectedModel: value }))}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-44">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {AI_MODELS.map(model => (
                   <SelectItem key={model.id} value={model.id}>
                     {model.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* 言語選択部分 */}
-        <div className="flex items-center gap-4 mb-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="source-lang" className="text-sm font-medium whitespace-nowrap">
-              翻訳元:
-            </Label>
-            <Select 
-              value={state.sourceLanguage} 
-              onValueChange={(value) => setState(prev => ({ ...prev, sourceLanguage: value }))}
-            >
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGES.map(lang => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={swapLanguages}
-            disabled={state.sourceLanguage === "auto"}
-            title={state.sourceLanguage === "auto" ? "自動検出時は入れ替えできません" : "言語を入れ替え"}
-          >
-            <ArrowLeftRight className="h-4 w-4" />
-          </Button>
-
-          <div className="flex items-center gap-2">
-            <Label htmlFor="target-lang" className="text-sm font-medium whitespace-nowrap">
-              翻訳先:
-            </Label>
-            <Select 
-              value={state.targetLanguage} 
-              onValueChange={(value) => setState(prev => ({ ...prev, targetLanguage: value }))}
-            >
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGES.map(lang => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -192,18 +192,13 @@ export default function Home() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-1">
+            <CardContent className="flex-1 flex flex-col p-0">
               <Textarea
                 value={state.sourceText}
                 onChange={(e) => setState(prev => ({ ...prev, sourceText: e.target.value }))}
                 placeholder="翻訳したいテキストを入力してください..."
                 className="flex-1 resize-none border-0 p-2 focus-visible:ring-0 rounded-none"
               />
-              <div className="flex justify-end px-2 pb-1">
-                <Badge variant="secondary" className="text-xs h-4">
-                  {state.sourceText.length} 文字
-                </Badge>
-              </div>
             </CardContent>
           </Card>
 
@@ -224,7 +219,7 @@ export default function Home() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-1">
+            <CardContent className="flex-1 flex flex-col p-0 relative">
               <Textarea
                 value={state.targetText}
                 readOnly
@@ -232,9 +227,9 @@ export default function Home() {
                 className="flex-1 resize-none bg-muted/50 border-0 p-2 focus-visible:ring-0 rounded-none"
               />
               {state.isTranslating && (
-                <div className="flex items-center gap-2 px-2 pb-1 text-primary">
+                <div className="absolute top-2 right-2 flex items-center gap-1 text-primary bg-background/80 rounded px-1">
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  <span className="text-xs">翻訳中...</span>
+                  <span className="text-xs">翻訳中</span>
                 </div>
               )}
             </CardContent>
