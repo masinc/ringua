@@ -48,13 +48,15 @@
 > **📋 詳細ワークフロー**: 完全な開発プロセスは [@docs/development-workflow.md](/docs/development-workflow.md) を参照
 
 ### コアプロセス (クイックリファレンス)
+0. **作業前準備**: mainブランチ状態確認・最新化（`git status`, `git pull origin main`）
 1. **Issue作成**: `gh issue create --title "日本語タイトル" --label "priority: medium"`
 2. **TODOリスト作成**: TodoWriteツールでIssueをタスクに分解
 3. **ブランチ作成**: `gh issue develop <issue-number>`
 4. **TODOで作業**: タスクステータス更新 (pending → in_progress → completed)
 5. **PR作成**: `gh pr create --label "priority: medium"`
-6. **CHANGELOG更新**: レビュー承認後、マージ前
-7. **マージ**: `gh pr merge <pr-number>`
+6. **CHANGELOG更新**: レビュー承認後、マージ前（**両方のバージョンファイル必須**）
+7. **マージ**: `gh pr merge <pr-number> --squash --delete-branch`
+8. **マージ後整理**: ローカルmain同期（`git reset --hard origin/main`）
 
 ### 重要ルール
 - **`main`ブランチに直接プッシュ禁止**
@@ -78,7 +80,7 @@
 作業進捗を追跡するため、常にTODOシステムを使用:
 
 #### TODOタスクとして追加すべき内容
-- **開発ワークフロー**: Issue作成、ブランチ作成、コミット、PR作成、CHANGELOG更新（レビュー承認後）
+- **開発ワークフロー**: 作業前準備、Issue作成、ブランチ作成、コミット、PR作成、CHANGELOG+バージョン更新（レビュー承認後）、マージ後整理
 - **機能実装**: 機能を具体的なコーディングタスクに分解
 - **ドキュメント更新**: コード変更に伴うドキュメント更新が必要な場合
 - **テストタスク**: 単体テスト、統合テスト、手動テスト

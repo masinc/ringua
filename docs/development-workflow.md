@@ -13,6 +13,26 @@
 
 ## 完全な開発プロセス
 
+### 0. 作業開始前の準備
+開発を開始する前に必ず以下を確認：
+
+```bash
+# 現在のブランチ状況を確認
+git status
+
+# mainブランチが最新か確認（進んでいる場合は先にPR作成が必要）
+git fetch origin
+git log main..origin/main --oneline  # 空であればOK
+
+# mainブランチに切り替え
+git checkout main
+
+# ローカルmainを最新に更新
+git pull origin main
+```
+
+⚠️ **重要**: mainブランチがorigin/mainより進んでいる場合は、直接プッシュ禁止ルールに従い、先にPRを作成してマージしてください。
+
 ### 1. Issue作成
 常にGitHub Issueの作成から開始：
 
@@ -31,7 +51,7 @@ gh issue view <issue-number>
 TodoWriteツールを使ってIssueを実行可能なタスクに分解：
 
 #### TODOタスクとして追加すべき内容
-- **開発ワークフロー**: Issue作成、ブランチ作成、コミット、PR作成、CHANGELOG更新（レビュー承認後）
+- **開発ワークフロー**: 作業前準備、Issue作成、ブランチ作成、コミット、PR作成、CHANGELOG+バージョン更新（レビュー承認後）、マージ後整理
 - **機能実装**: 機能を具体的なコーディングタスクに分解
 - **ドキュメント更新**: コード変更に伴うドキュメント更新が必要な場合
 - **テストタスク**: 単体テスト、統合テスト、手動テスト
@@ -113,7 +133,39 @@ Closes #[Issue番号]
 - 必要に応じてラベルを更新（`needs-review`、`needs-testing`等を追加）
 
 ### 8. CHANGELOGとバージョン管理
-レビュー承認後、マージ前に：
+⚠️ **タイミング重要**: レビュー承認後、マージ前に実行
+
+#### バージョン更新チェックリスト
+必ず以下の**両方**のファイルでバージョンを同期：
+- [ ] `package.json` のversion
+- [ ] `src-tauri/Cargo.toml` のversion
+
+#### バージョン増分ルール
+- **PATCH (0.0.x)**: バグ修正、ドキュメント更新、リファクタリング
+- **MINOR (0.x.0)**: 新機能追加、機能改善
+- **MAJOR (x.0.0)**: 破壊的変更（開発中は避ける）
+
+#### 実行手順
+```bash
+# 1. バージョン更新（例：0.1.0 → 0.1.1）
+# package.json
+sed -i 's/"version": "0.1.0"/"version": "0.1.1"/' package.json
+
+# src-tauri/Cargo.toml  
+sed -i 's/version = "0.1.0"/version = "0.1.1"/' src-tauri/Cargo.toml
+
+# 2. CHANGELOG更新
+# [Unreleased] → [0.1.1] - 2025-XX-XX に変更
+# Issue/PR参照を追加
+
+# 3. 変更をコミット
+git add package.json src-tauri/Cargo.toml CHANGELOG.md
+git commit -m "docs: CHANGELOGとバージョン更新
+
+- package.json: 0.1.0 → 0.1.1
+- src-tauri/Cargo.toml: 0.1.0 → 0.1.1
+- CHANGELOG.md: v0.1.1エントリ追加"
+```
 
 #### CHANGELOGを更新するタイミング
 - **レビュー承認後**: コードレビュー完了後にCHANGELOG.mdとバージョンを更新
@@ -167,12 +219,35 @@ git push origin <branch-name>
 
 ### 10. マージ
 ```bash
-# プルリクエストをマージ
-gh pr merge <pr-number>
+# プルリクエストをマージ（推奨：スカッシュマージ）
+gh pr merge <pr-number> --squash --delete-branch
 
 # またはマージせずにクローズ（ブランチは自動削除）
 gh pr close <pr-number> --delete-branch
 ```
+
+### 11. マージ後の作業
+マージ完了後、ローカル環境を整理：
+
+```bash
+# mainブランチに切り替え
+git checkout main
+
+# リモートの最新状態を取得
+git fetch origin
+
+# ローカルmainをリモートmainに同期
+git reset --hard origin/main
+
+# 不要なローカルブランチを削除
+git branch -d <feature-branch-name>
+
+# 現在の状況確認
+git status
+git log --oneline -5
+```
+
+⚠️ **重要**: マージ後は必ずローカルmainを最新状態に同期してから次の作業を開始してください。
 
 ## ブランチ命名規則
 - **機能**: `feature/description` (例: `feature/clipboard-translation`)
