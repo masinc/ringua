@@ -66,6 +66,27 @@ TodoWriteツールを使ってIssueを実行可能なタスクに分解：
 - **TodoReadを定期的に使用**: 進捗と次のステップを確認
 - **タスクを即座に完了**: 完了をバッチ処理せず、終了時にすぐマーク
 
+#### TODOタスク例
+**開発ワークフロータスク:**
+```
+1. 作業前準備 (pending)
+2. Issue作成 (pending)
+3. ブランチ作成 (pending)
+4. 機能実装 (pending)
+5. PR作成 (pending)
+6. CHANGELOG+バージョン更新 (pending)
+7. マージ後整理 (pending)
+```
+
+**機能実装タスク例:**
+```
+1. データベーススキーマ設計 (pending)
+2. APIエンドポイント実装 (pending)
+3. フロントエンドコンポーネント作成 (pending)
+4. 単体テスト作成 (pending)
+5. 統合テスト実行 (pending)
+```
+
 ### 3. ブランチ作成と開発
 Issueから直接フィーチャーブランチを作成：
 
@@ -361,18 +382,21 @@ gh repo view
 
 ## GitHubラベルシステム
 
-ラベルシステムの詳細については、[@CLAUDE.md](/CLAUDE.md)の**GitHubラベルの使用方法**セクションを参照してください。
-
-### クイックリファレンス
-- **タイプ**: bug/enhancement/documentation (該当する場合)
+### ラベル必須ルール
+- **優先度**: priority: high/medium/low (**必須**)
 - **エリア**: ui/api/core (該当する場合)
-- **優先度**: priority: high/medium/low (必須)
+- **タイプ**: bug/enhancement/documentation (該当する場合)
 - **ワークフロー**: needs-review/needs-testing/blocked (該当する場合)
 
 ### エリアラベルの使い分け
-- **ui**: ユーザーインターフェース、デザイン、操作性の問題
-- **api**: AIモデル連携、翻訳機能、外部APIの問題
-- **core**: データベース、設定、ファイル処理、セキュリティの問題
+- **ui**: ユーザーインターフェース、画面、操作性
+- **api**: AIモデル連携、API呼び出し、翻訳機能
+- **core**: データベース、設定、ファイル処理、セキュリティ
+
+### ワークフローラベル
+- **needs-review**: コードレビューが必要
+- **needs-testing**: テストが必要
+- **blocked**: 他の作業により進行がブロックされている
 
 ## テストと品質保証
 
