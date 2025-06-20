@@ -70,10 +70,13 @@ TodoWriteツールを使ってIssueを実行可能なタスクに分解：
 Issueから直接フィーチャーブランチを作成：
 
 ```bash
-# Issueからブランチを作成して開発開始
-gh issue develop <issue-number>
+# Issueからブランチを作成して開発開始（自動チェックアウト）
+gh issue develop <issue-number> --checkout --checkout
 
-# これによりIssueにちなんだ名前のブランチが自動作成される
+# または最新のmainから明示的にブランチ作成
+gh issue develop <issue-number> --checkout --checkout --base main
+
+# これによりIssueにちなんだ名前のブランチが自動作成され、そのブランチに切り替わる
 ```
 
 ### 4. 開発作業
@@ -276,7 +279,7 @@ gh issue list
 gh issue view <issue-number>
 
 # Issueからブランチを作成して開発開始
-gh issue develop <issue-number>
+gh issue develop <issue-number> --checkout
 ```
 
 ### プルリクエスト管理

@@ -51,7 +51,7 @@
 0. **作業前準備**: mainブランチ状態確認・最新化（`git status`, `git pull origin main`）
 1. **Issue作成**: `gh issue create --title "日本語タイトル" --label "priority: medium"`
 2. **TODOリスト作成**: TodoWriteツールでIssueをタスクに分解
-3. **ブランチ作成**: `gh issue develop <issue-number>`
+3. **ブランチ作成**: `gh issue develop <issue-number> --checkout`
 4. **TODOで作業**: タスクステータス更新 (pending → in_progress → completed)
 5. **PR作成**: `gh pr create --label "priority: medium"`
 6. **CHANGELOG更新**: レビュー承認後、マージ前（**両方のバージョンファイル必須**）
@@ -201,8 +201,8 @@ Closes #[Issue番号]
 # ラベル付きIssue作成 (優先度必須)
 gh issue create --title "日本語タイトル" --label "priority: high,bug,ui"
 
-# Issueからブランチ作成
-gh issue develop <issue-number>
+# Issueからブランチ作成（自動チェックアウト）
+gh issue develop <issue-number> --checkout
 
 # ラベル付きPR作成 (優先度必須)
 gh pr create --title "日本語タイトル" --label "priority: medium,enhancement,api"
