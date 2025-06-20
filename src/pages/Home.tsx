@@ -86,11 +86,7 @@ export default function Home() {
     <Layout>
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Ringua</h1>
-              <p className="text-muted-foreground">AI翻訳アプリケーション</p>
-            </div>
+          <div className="flex justify-end mb-6">
             <div className="flex items-center gap-2">
               <Label htmlFor="model-select" className="text-sm font-medium">
                 AIモデル:
