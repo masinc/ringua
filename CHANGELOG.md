@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2025-06-20
+
+### Changed
+- CLAUDE.mdを重要ルールのみに簡素化し詳細内容を参照ドキュメントに移行 ([#3](https://github.com/masinc/ringua/issues/3), [PR#4](https://github.com/masinc/ringua/pull/4))
+- GitHub CLI コマンドに--checkoutと--baseオプションを追加 ([#3](https://github.com/masinc/ringua/issues/3), [PR#4](https://github.com/masinc/ringua/pull/4))
+
+### Added
+- Context7 MCP統合詳細をdocs/architecture.mdに追加 ([#3](https://github.com/masinc/ringua/issues/3), [PR#4](https://github.com/masinc/ringua/pull/4))
+- TODOタスク詳細例とベストプラクティスをdocs/development-workflow.mdに追加 ([#3](https://github.com/masinc/ringua/issues/3), [PR#4](https://github.com/masinc/ringua/pull/4))
+
 ## [0.1.1] - 2025-06-20
 
 ### Added
