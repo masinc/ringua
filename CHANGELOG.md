@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2025-06-20
+
+### Added
+- バージョンアップ時のCargo.lock更新手順を開発ワークフローに追加 ([#5](https://github.com/masinc/ringua/issues/5), [PR#6](https://github.com/masinc/ringua/pull/6))
+
 ## [0.1.2] - 2025-06-20
 
 ### Changed
