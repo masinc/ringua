@@ -260,6 +260,41 @@ git log --oneline -5
 
 ## 言語要件
 - **すべてのIssue、PR、コミットメッセージは日本語で記述**
+
+## コミットメッセージ形式
+conventional commitsフォーマットを**日本語**で:
+```
+type(scope): 日本語での説明
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+## プルリクエストテンプレート
+適切なラベル付きIssue自動クローズテンプレートを使用:
+```markdown
+## 概要
+この PR の変更内容を日本語で説明
+
+## 関連 Issue
+Closes #[Issue番号]
+
+## 変更内容
+- 変更点1
+- 変更点2
+
+## テスト
+- [ ] 動作確認済み
+- [ ] 型チェック通過
+- [ ] ビルド成功
+
+## ラベル
+- 適切なタイプラベル (bug/enhancement/documentation)
+- 必要に応じて管理ラベル追加
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+```
 - **コードコメントとドキュメントはファイルの言語に従う**（英語ドキュメントは英語、日本語ドキュメントは日本語）
 
 ## GitHub CLIコマンドリファレンス
