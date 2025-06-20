@@ -84,9 +84,9 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="flex flex-col h-full p-4 max-w-6xl mx-auto">
+      <div className="flex flex-col h-full p-2 max-w-7xl mx-auto">
         {/* ヘッダー部分 */}
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="model-select" className="text-sm font-medium">
               AIモデル:
@@ -110,7 +110,7 @@ export default function Home() {
         </div>
 
         {/* 言語選択部分 */}
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="source-lang" className="text-sm font-medium whitespace-nowrap">
               翻訳元:
@@ -165,12 +165,12 @@ export default function Home() {
         </div>
 
         {/* 翻訳エリア */}
-        <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-4 min-h-0">
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-2 min-h-0">
           <Card className="flex flex-col">
-            <CardHeader className="pb-3 flex-shrink-0">
+            <CardHeader className="pb-2 pt-3 px-3 flex-shrink-0">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">原文</CardTitle>
-                <div className="flex items-center gap-2">
+                <CardTitle className="text-base">原文</CardTitle>
+                <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
                     size="sm"
@@ -190,14 +190,14 @@ export default function Home() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col">
+            <CardContent className="flex-1 flex flex-col p-3 pt-0">
               <Textarea
                 value={state.sourceText}
                 onChange={(e) => setState(prev => ({ ...prev, sourceText: e.target.value }))}
                 placeholder="翻訳したいテキストを入力してください..."
-                className="flex-1 resize-none"
+                className="flex-1 resize-none border-0 p-3 focus-visible:ring-0"
               />
-              <div className="flex justify-between items-center mt-2">
+              <div className="flex justify-between items-center mt-1">
                 <Badge variant="secondary" className="text-xs">
                   {state.sourceText.length} 文字
                 </Badge>
@@ -206,10 +206,10 @@ export default function Home() {
           </Card>
 
           <Card className="flex flex-col">
-            <CardHeader className="pb-3 flex-shrink-0">
+            <CardHeader className="pb-2 pt-3 px-3 flex-shrink-0">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">翻訳結果</CardTitle>
-                <div className="flex items-center gap-2">
+                <CardTitle className="text-base">翻訳結果</CardTitle>
+                <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
                     size="sm"
@@ -221,15 +221,15 @@ export default function Home() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col">
+            <CardContent className="flex-1 flex flex-col p-3 pt-0">
               <Textarea
                 value={state.targetText}
                 readOnly
                 placeholder={state.isTranslating ? "翻訳中..." : "翻訳結果がここに表示されます"}
-                className="flex-1 resize-none bg-muted/50"
+                className="flex-1 resize-none bg-muted/50 border-0 p-3 focus-visible:ring-0"
               />
               {state.isTranslating && (
-                <div className="flex items-center gap-2 mt-2 text-primary">
+                <div className="flex items-center gap-2 mt-1 text-primary">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-sm">翻訳中...</span>
                 </div>
@@ -239,7 +239,7 @@ export default function Home() {
         </div>
 
         {/* 翻訳ボタン */}
-        <div className="flex justify-center mt-4 flex-shrink-0">
+        <div className="flex justify-center mt-2 flex-shrink-0">
           <Button
             onClick={handleTranslate}
             disabled={!state.sourceText.trim() || state.isTranslating}
