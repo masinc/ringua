@@ -122,9 +122,16 @@ export default function Settings() {
     const savedSettings = localStorage.getItem("ringua-settings");
     if (savedSettings) {
       try {
-        setSettings(JSON.parse(savedSettings));
+        const parsed = JSON.parse(savedSettings);
+        // 既存の設定とマージして、新しいフィールドを確保
+        setSettings({
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          providers: parsed.providers || DEFAULT_PROVIDERS
+        });
       } catch (error) {
         console.error("Failed to load settings:", error);
+        setSettings(DEFAULT_SETTINGS);
       }
     }
   }, []);
@@ -147,6 +154,7 @@ export default function Settings() {
   };
 
   const updateProviderApiKey = (providerId: string, apiKey: string) => {
+    if (!settings.providers) return;
     const updatedProviders = settings.providers.map(provider =>
       provider.id === providerId ? { ...provider, apiKey } : provider
     );
@@ -154,6 +162,7 @@ export default function Settings() {
   };
 
   const updateProviderEnabled = (providerId: string, enabled: boolean) => {
+    if (!settings.providers) return;
     const updatedProviders = settings.providers.map(provider =>
       provider.id === providerId ? { ...provider, enabled } : provider
     );
@@ -161,11 +170,12 @@ export default function Settings() {
   };
 
   const updateModelEnabled = (providerId: string, modelId: string, enabled: boolean) => {
+    if (!settings.providers) return;
     const updatedProviders = settings.providers.map(provider => {
       if (provider.id === providerId) {
-        const updatedModels = provider.models.map(model =>
+        const updatedModels = provider.models?.map(model =>
           model.id === modelId ? { ...model, enabled } : model
-        );
+        ) || [];
         return { ...provider, models: updatedModels };
       }
       return provider;
@@ -174,12 +184,13 @@ export default function Settings() {
   };
 
   const updateModelDefault = (providerId: string, modelId: string) => {
+    if (!settings.providers) return;
     const updatedProviders = settings.providers.map(provider => {
       if (provider.id === providerId) {
-        const updatedModels = provider.models.map(model => ({
+        const updatedModels = provider.models?.map(model => ({
           ...model,
           isDefault: model.id === modelId
-        }));
+        })) || [];
         return { ...provider, models: updatedModels };
       }
       return provider;
@@ -306,7 +317,7 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="api" className="space-y-4 mt-4">
-            {settings.providers.map((provider) => (
+            {settings.providers?.map((provider) => (
               <Card key={provider.id}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -345,7 +356,7 @@ export default function Settings() {
                     <div className="space-y-3">
                       <Label className="text-sm font-medium">利用可能モデル</Label>
                       <div className="space-y-2">
-                        {provider.models.map((model) => (
+                        {provider.models?.map((model) => (
                           <div key={model.id} className="flex items-center justify-between p-2 border rounded">
                             <div className="flex items-center space-x-2">
                               <Checkbox
