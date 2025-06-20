@@ -160,9 +160,10 @@ Closes #[Issue番号]
 ⚠️ **タイミング重要**: レビュー承認後、マージ前に実行
 
 #### バージョン更新チェックリスト
-必ず以下の**両方**のファイルでバージョンを同期：
+必ず以下の**すべて**のファイルでバージョンを同期：
 - [ ] `package.json` のversion
 - [ ] `src-tauri/Cargo.toml` のversion
+- [ ] `src-tauri/Cargo.lock` のversion（cargo checkで自動更新）
 
 #### バージョン増分ルール
 - **PATCH (0.0.x)**: バグ修正、ドキュメント更新、リファクタリング
@@ -182,12 +183,18 @@ sed -i 's/version = "0.1.0"/version = "0.1.1"/' src-tauri/Cargo.toml
 # [Unreleased] → [0.1.1] - 2025-XX-XX に変更
 # Issue/PR参照を追加
 
-# 3. 変更をコミット
-git add package.json src-tauri/Cargo.toml CHANGELOG.md
+# 3. Cargo.lockを更新
+cd src-tauri
+cargo check  # Cargo.lockを自動更新
+cd ..
+
+# 4. 変更をコミット
+git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock CHANGELOG.md
 git commit -m "docs: CHANGELOGとバージョン更新
 
 - package.json: 0.1.0 → 0.1.1
 - src-tauri/Cargo.toml: 0.1.0 → 0.1.1
+- src-tauri/Cargo.lock: 0.1.0 → 0.1.1
 - CHANGELOG.md: v0.1.1エントリ追加"
 ```
 
@@ -230,7 +237,7 @@ git commit -m "docs: CHANGELOGとバージョン更新
 ### 9. 最終コミットとプッシュ
 ```bash
 # CHANGELOGとバージョン更新をコミット
-git add CHANGELOG.md package.json
+git add CHANGELOG.md package.json src-tauri/Cargo.toml src-tauri/Cargo.lock
 git commit -m "docs: CHANGELOGとバージョン更新
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
