@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "../hooks/useTheme";
 import Layout from "../components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -130,6 +131,7 @@ const LANGUAGES = [
 ];
 
 export default function Settings() {
+  const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -144,18 +146,24 @@ export default function Settings() {
       try {
         const parsed = JSON.parse(savedSettings);
         // 既存の設定とマージして、新しいフィールドを確保
-        setSettings({
+        const loadedSettings = {
           ...DEFAULT_SETTINGS,
           ...parsed,
           providers: parsed.providers || DEFAULT_PROVIDERS,
           defaultModel: parsed.defaultModel || DEFAULT_SETTINGS.defaultModel
-        });
+        };
+        setSettings(loadedSettings);
+        
+        // テーマを同期（設定側を優先）
+        if (loadedSettings.theme !== theme) {
+          setTheme(loadedSettings.theme);
+        }
       } catch (error) {
         console.error("Failed to load settings:", error);
         setSettings(DEFAULT_SETTINGS);
       }
     }
-  }, []);
+  }, [theme, setTheme]);
 
   const saveSettings = async () => {
     setIsSaving(true);
@@ -172,6 +180,11 @@ export default function Settings() {
   const updateSettings = (newSettings: Partial<UserSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
     setHasChanges(true);
+    
+    // テーマが変更された場合は即座に反映
+    if (newSettings.theme && newSettings.theme !== theme) {
+      setTheme(newSettings.theme);
+    }
   };
 
   const updateProviderApiKey = (providerId: string, apiKey: string) => {
@@ -573,7 +586,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">テーマ</Label>
                   <Select
-                    value={settings.theme}
+                    value={theme}
                     onValueChange={(value: "light" | "dark" | "system") => 
                       updateSettings({ theme: value })
                     }
