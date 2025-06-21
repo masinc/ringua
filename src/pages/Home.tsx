@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,8 +13,37 @@ interface TranslationState {
   targetText: string;
   sourceLanguage: string;
   targetLanguage: string;
-  selectedModel: string;
+  selectedModel: string; // "providerId:modelId" 形式
   isTranslating: boolean;
+}
+
+interface ProviderConfig {
+  id: string;
+  name: string;
+  apiKey: string;
+  endpoint?: string;
+  enabled: boolean;
+  models: ModelConfig[];
+}
+
+interface ModelConfig {
+  id: string;
+  name: string;
+  enabled: boolean;
+  isDefault?: boolean;
+  isCustom?: boolean;
+}
+
+interface UserSettings {
+  providers: ProviderConfig[];
+  defaultModel: string;
+  defaultLanguages: {
+    source: string;
+    target: string;
+  };
+  theme: "light" | "dark" | "system";
+  autoSave: boolean;
+  notifications: boolean;
 }
 
 const LANGUAGES = [
@@ -28,31 +57,85 @@ const LANGUAGES = [
   { code: "de", name: "Deutsch" },
 ];
 
-const AI_MODELS = [
-  { id: "openai-gpt4", name: "OpenAI GPT-4" },
-  { id: "claude-3", name: "Anthropic Claude 3" },
-  { id: "gemini-pro", name: "Google Gemini Pro" },
-];
+// 設定画面と共有する型定義
+const loadSettings = (): UserSettings | null => {
+  try {
+    const savedSettings = localStorage.getItem("ringua-settings");
+    return savedSettings ? JSON.parse(savedSettings) : null;
+  } catch {
+    return null;
+  }
+};
+
+const getAvailableModels = (settings: UserSettings | null) => {
+  if (!settings) return [];
+  
+  const availableModels: { id: string; name: string; providerId: string; providerName: string }[] = [];
+  
+  settings.providers
+    .filter(provider => provider.enabled && provider.apiKey)
+    .forEach(provider => {
+      provider.models
+        ?.filter(model => model.enabled)
+        .forEach(model => {
+          availableModels.push({
+            id: `${provider.id}:${model.id}`,
+            name: `${model.name}`,
+            providerId: provider.id,
+            providerName: provider.name
+          });
+        });
+    });
+    
+  return availableModels;
+};
 
 export default function Home() {
+  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [availableModels, setAvailableModels] = useState<{ id: string; name: string; providerId: string; providerName: string }[]>([]);
+  
   const [state, setState] = useState<TranslationState>({
     sourceText: "",
     targetText: "",
     sourceLanguage: "auto",
     targetLanguage: "ja",
-    selectedModel: "openai-gpt4",
+    selectedModel: "",
     isTranslating: false,
   });
 
+  useEffect(() => {
+    // 設定を読み込み
+    const loadedSettings = loadSettings();
+    setSettings(loadedSettings);
+    
+    if (loadedSettings) {
+      const models = getAvailableModels(loadedSettings);
+      setAvailableModels(models);
+      
+      // デフォルトモデルまたは最初の利用可能モデルを設定
+      const defaultModel = loadedSettings.defaultModel;
+      const initialModel = models.find(m => m.id === defaultModel)?.id || models[0]?.id || "";
+      
+      setState(prev => ({
+        ...prev,
+        selectedModel: initialModel,
+        sourceLanguage: loadedSettings.defaultLanguages?.source || "auto",
+        targetLanguage: loadedSettings.defaultLanguages?.target || "ja"
+      }));
+    }
+  }, []);
+
   const handleTranslate = async () => {
-    if (!state.sourceText.trim()) return;
+    if (!state.sourceText.trim() || !state.selectedModel) return;
 
     setState(prev => ({ ...prev, isTranslating: true, targetText: "" }));
 
     try {
       // モックデータでの翻訳シミュレーション
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const mockTranslation = `[${state.selectedModel}で翻訳] ${state.sourceText}`;
+      const selectedModelInfo = availableModels.find(m => m.id === state.selectedModel);
+      const modelName = selectedModelInfo ? selectedModelInfo.name : state.selectedModel;
+      const mockTranslation = `[${modelName}で翻訳] ${state.sourceText}`;
       setState(prev => ({ ...prev, targetText: mockTranslation, isTranslating: false }));
     } catch (error) {
       console.error("Translation error:", error);
@@ -154,11 +237,18 @@ export default function Home() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {AI_MODELS.map(model => (
-                  <SelectItem key={model.id} value={model.id}>
-                    {model.name}
+                {availableModels.length > 0 ? (
+                  availableModels.map(model => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                      {settings?.defaultModel === model.id && " (デフォルト)"}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    モデルが設定されていません
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
