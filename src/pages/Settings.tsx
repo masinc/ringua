@@ -161,6 +161,7 @@ export default function Settings() {
         }
         // 保存されている設定として記録
         originalSettings.current = loadedSettings;
+        console.log("設定読み込み - originalSettings.theme:", originalSettings.current.theme);
       } catch (error) {
         console.error("Failed to load settings:", error);
         setSettings(DEFAULT_SETTINGS);
@@ -192,6 +193,7 @@ export default function Settings() {
     
     // テーマが変更された場合は即座に反映（プレビュー用）
     if (newSettings.theme && newSettings.theme !== theme) {
+      console.log("テーマ変更:", theme, "→", newSettings.theme);
       setTheme(newSettings.theme);
     }
   };
@@ -297,6 +299,10 @@ export default function Settings() {
 
   const confirmNavigation = () => {
     // 破棄する場合は設定とテーマを元に戻す
+    console.log("confirmNavigation - 現在のテーマ:", theme);
+    console.log("confirmNavigation - 元のテーマ:", originalSettings.current.theme);
+    console.log("confirmNavigation - 現在の設定テーマ:", settings.theme);
+    
     setSettings(originalSettings.current);
     setTheme(originalSettings.current.theme);
     setHasChanges(false);
