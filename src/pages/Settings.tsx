@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Layout from "../components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { 
   Save, 
   Download, 
@@ -24,7 +24,8 @@ import {
   Bell,
   Settings as SettingsIcon,
   Plus,
-  Trash2
+  Trash2,
+  RotateCcw
 } from "lucide-react";
 
 interface ModelConfig {
@@ -132,7 +133,9 @@ export default function Settings() {
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editingProvider, setEditingProvider] = useState<string | null>(null);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const pendingNavigation = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     // 設定をローカルストレージから読み込み
@@ -251,6 +254,39 @@ export default function Settings() {
     URL.revokeObjectURL(url);
   };
 
+  const resetSettings = () => {
+    setSettings(DEFAULT_SETTINGS);
+    setHasChanges(true);
+    setShowResetDialog(false);
+  };
+
+  const handleNavigation = (navigationFn: () => void) => {
+    if (hasChanges) {
+      pendingNavigation.current = navigationFn;
+      setShowUnsavedDialog(true);
+    } else {
+      navigationFn();
+    }
+  };
+
+  const confirmNavigation = () => {
+    setShowUnsavedDialog(false);
+    if (pendingNavigation.current) {
+      pendingNavigation.current();
+      pendingNavigation.current = null;
+    }
+  };
+
+  const cancelNavigation = () => {
+    setShowUnsavedDialog(false);
+    pendingNavigation.current = null;
+  };
+
+  const saveAndNavigate = async () => {
+    await saveSettings();
+    confirmNavigation();
+  };
+
   const importSettings = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -281,6 +317,15 @@ export default function Settings() {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold">設定</h1>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowResetDialog(true)}
+              className="gap-1"
+            >
+              <RotateCcw className="h-3 w-3" />
+              初期化
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -583,6 +628,49 @@ export default function Settings() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* 未保存時の遷移確認ダイアログ */}
+        <Dialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>未保存の変更があります</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              設定に未保存の変更があります。このまま移動すると変更は失われます。
+            </p>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={cancelNavigation}>
+                キャンセル
+              </Button>
+              <Button variant="destructive" onClick={confirmNavigation}>
+                破棄して移動
+              </Button>
+              <Button onClick={saveAndNavigate}>
+                保存して移動
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* 初期化確認ダイアログ */}
+        <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>設定を初期化しますか？</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              すべての設定がデフォルト値にリセットされます。この操作は取り消せません。
+            </p>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setShowResetDialog(false)}>
+                キャンセル
+              </Button>
+              <Button variant="destructive" onClick={resetSettings}>
+                初期化する
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
