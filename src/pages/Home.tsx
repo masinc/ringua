@@ -245,7 +245,7 @@ export default function Home() {
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="no-models" disabled>
                     モデルが設定されていません
                   </SelectItem>
                 )}
