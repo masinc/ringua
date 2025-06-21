@@ -233,17 +233,67 @@ export default function Home() {
               value={state.selectedModel} 
               onValueChange={(value) => setState(prev => ({ ...prev, selectedModel: value }))}
             >
-              <SelectTrigger className="w-44">
-                <SelectValue />
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="モデルを選択">
+                  {state.selectedModel && (() => {
+                    const selectedModel = availableModels.find(m => m.id === state.selectedModel);
+                    if (selectedModel) {
+                      return (
+                        <div className="flex items-center justify-between w-full">
+                          <span className="truncate">{selectedModel.name}</span>
+                          <div className="flex items-center gap-1 ml-2">
+                            <span className="text-xs text-muted-foreground">
+                              {selectedModel.providerName}
+                            </span>
+                            {settings?.defaultModel === selectedModel.id && (
+                              <Badge variant="secondary" className="text-xs px-1 py-0">
+                                デフォルト
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {availableModels.length > 0 ? (
-                  availableModels.map(model => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                      {settings?.defaultModel === model.id && " (デフォルト)"}
-                    </SelectItem>
-                  ))
+                  (() => {
+                    // プロバイダー別にグループ化
+                    const groupedModels = availableModels.reduce((acc, model) => {
+                      if (!acc[model.providerId]) {
+                        acc[model.providerId] = [];
+                      }
+                      acc[model.providerId].push(model);
+                      return acc;
+                    }, {} as Record<string, typeof availableModels>);
+
+                    return Object.entries(groupedModels).map(([providerId, models]) => (
+                      <div key={providerId}>
+                        {/* プロバイダー名のセパレータ */}
+                        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground bg-muted/50 border-b">
+                          {models[0].providerName}
+                        </div>
+                        {/* そのプロバイダーのモデル一覧 */}
+                        {models.map(model => (
+                          <SelectItem key={model.id} value={model.id} className="pl-6">
+                            <div className="flex items-center justify-between w-full">
+                              <span>{model.name}</span>
+                              <div className="flex items-center gap-1">
+                                {settings?.defaultModel === model.id && (
+                                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                                    デフォルト
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </div>
+                    ));
+                  })()
                 ) : (
                   <SelectItem value="no-models" disabled>
                     モデルが設定されていません
