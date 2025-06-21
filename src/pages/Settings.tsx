@@ -64,33 +64,43 @@ const DEFAULT_PROVIDERS: ProviderConfig[] = [
   {
     id: "openai",
     name: "OpenAI",
-    apiKey: "",
+    apiKey: "sk-demo-key-for-prototype", // プロトタイプ確認用仮APIキー
     enabled: true,
     models: [
       { id: "gpt-4o", name: "GPT-4o", enabled: true, isDefault: true },
       { id: "gpt-4", name: "GPT-4", enabled: true },
-      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", enabled: false },
+      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", enabled: true },
     ]
   },
   {
     id: "claude",
     name: "Anthropic Claude",
-    apiKey: "",
+    apiKey: "sk-ant-demo-key-for-prototype", // プロトタイプ確認用仮APIキー
     enabled: true,
     models: [
       { id: "claude-3-5-sonnet", name: "Claude 3.5 Sonnet", enabled: true, isDefault: true },
       { id: "claude-3-opus", name: "Claude 3 Opus", enabled: true },
-      { id: "claude-3-haiku", name: "Claude 3 Haiku", enabled: false },
+      { id: "claude-3-haiku", name: "Claude 3 Haiku", enabled: true },
     ]
   },
   {
     id: "gemini",
     name: "Google Gemini",
-    apiKey: "",
+    apiKey: "AIza-demo-key-for-prototype", // プロトタイプ確認用仮APIキー
     enabled: true,
     models: [
       { id: "gemini-pro", name: "Gemini Pro", enabled: true, isDefault: true },
-      { id: "gemini-pro-vision", name: "Gemini Pro Vision", enabled: false },
+      { id: "gemini-pro-vision", name: "Gemini Pro Vision", enabled: true },
+    ]
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    apiKey: "sk-deepseek-demo-key", // プロトタイプ確認用仮APIキー
+    enabled: true,
+    models: [
+      { id: "deepseek-chat", name: "DeepSeek Chat", enabled: true },
+      { id: "deepseek-coder", name: "DeepSeek Coder", enabled: true },
     ]
   }
 ];
