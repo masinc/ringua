@@ -154,11 +154,6 @@ export default function Settings() {
           defaultModel: parsed.defaultModel || DEFAULT_SETTINGS.defaultModel
         };
         setSettings(loadedSettings);
-        
-        // テーマを同期（設定側を優先）
-        if (loadedSettings.theme !== theme) {
-          setTheme(loadedSettings.theme);
-        }
         // 保存されている設定として記録
         originalSettings.current = loadedSettings;
       } catch (error) {
@@ -170,7 +165,14 @@ export default function Settings() {
       // ローカルストレージに設定がない場合はデフォルト設定を記録
       originalSettings.current = DEFAULT_SETTINGS;
     }
-  }, [theme, setTheme]);
+  }, []); // 初回のみ実行
+
+  // settings.themeが変更された時のみテーマを同期
+  useEffect(() => {
+    if (settings.theme !== theme) {
+      setTheme(settings.theme);
+    }
+  }, [settings.theme, theme, setTheme]);
 
   const saveSettings = async () => {
     setIsSaving(true);
@@ -189,11 +191,7 @@ export default function Settings() {
   const updateSettings = (newSettings: Partial<UserSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
     setHasChanges(true);
-    
-    // テーマが変更された場合は即座に反映（プレビュー用）
-    if (newSettings.theme && newSettings.theme !== theme) {
-      setTheme(newSettings.theme);
-    }
+    // テーマ同期は別のuseEffectで処理
   };
 
   const updateProviderApiKey = (providerId: string, apiKey: string) => {
