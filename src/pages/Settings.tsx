@@ -602,7 +602,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">テーマ</Label>
                   <Select
-                    value={theme}
+                    value={settings.theme}
                     onValueChange={(value: "light" | "dark" | "system") => 
                       updateSettings({ theme: value })
                     }
