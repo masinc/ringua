@@ -21,11 +21,8 @@ import {
   Key,
   Globe,
   Palette,
-  Keyboard,
   Bell,
   Settings as SettingsIcon,
-  Plus,
-  Trash2,
   RotateCcw
 } from "lucide-react";
 
