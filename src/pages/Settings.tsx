@@ -260,13 +260,15 @@ export default function Settings() {
     setShowResetDialog(false);
   };
 
-  const handleNavigation = (navigationFn: () => void) => {
+  const handleNavigationAttempt = (targetPath: string): boolean => {
     if (hasChanges) {
-      pendingNavigation.current = navigationFn;
+      pendingNavigation.current = () => {
+        window.location.href = targetPath; // 強制遷移用の fallback
+      };
       setShowUnsavedDialog(true);
-    } else {
-      navigationFn();
+      return false; // 遷移をブロック
     }
+    return true; // 遷移を許可
   };
 
   const confirmNavigation = () => {
@@ -311,7 +313,7 @@ export default function Settings() {
   };
 
   return (
-    <Layout>
+    <Layout onNavigationAttempt={handleNavigationAttempt}>
       <div className="flex flex-col h-full p-2 max-w-5xl mx-auto">
         {/* ヘッダー */}
         <div className="flex items-center justify-between mb-4">

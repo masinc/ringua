@@ -1,21 +1,34 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Globe, History, Settings } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
+  onNavigationAttempt?: (targetPath: string) => boolean; // trueで遷移許可、falseで遷移ブロック
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, onNavigationAttempt }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navigation = [
     { path: "/", label: "翻訳", icon: Globe },
     { path: "/history", label: "履歴", icon: History },
     { path: "/settings", label: "設定", icon: Settings },
   ];
+
+  const handleNavigation = (targetPath: string) => {
+    if (onNavigationAttempt) {
+      const canNavigate = onNavigationAttempt(targetPath);
+      if (canNavigate) {
+        navigate(targetPath);
+      }
+    } else {
+      navigate(targetPath);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -40,11 +53,12 @@ export default function Layout({ children }: LayoutProps) {
                     size="icon"
                     className="w-full"
                     title={item.label}
-                    asChild
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNavigation(item.path);
+                    }}
                   >
-                    <Link to={item.path}>
-                      <Icon className="h-4 w-4" />
-                    </Link>
+                    <Icon className="h-4 w-4" />
                   </Button>
                 );
               })}
