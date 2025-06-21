@@ -56,18 +56,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const updateTheme = (newTheme: Theme) => {
     setTheme(newTheme);
-    
-    // 設定に保存
-    const savedSettings = localStorage.getItem("ringua-settings");
-    if (savedSettings) {
-      try {
-        const settings = JSON.parse(savedSettings);
-        settings.theme = newTheme;
-        localStorage.setItem("ringua-settings", JSON.stringify(settings));
-      } catch (error) {
-        console.error("Failed to save theme to settings:", error);
-      }
-    }
+    // 注意: ローカルストレージへの保存はSettings側のsaveSettingsで行う
   };
 
   return (
