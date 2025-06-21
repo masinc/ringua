@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-06-21
+
+### Added
+- フロントエンドの主要画面プロトタイプを作成 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- TailwindCSS v4とshadcn/uiのモダンUIフレームワーク導入 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- ホーム画面（翻訳インターフェース）の実装 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- 履歴画面プレースホルダーの実装 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- 設定画面（APIキー管理、テーマ、言語設定）の実装 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- プロバイダー別AIモデル管理システム ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- テーマ切り替え機能（ライト・ダーク・システム設定）([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- 未保存時遷移確認ダイアログ ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- 設定初期化機能 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- プロトタイプ確認用の仮APIキーとモデルデータ ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+
+### Changed
+- レイアウトをコンパクトなアイコンベースサイドバーに変更 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+- 翻訳画面のUIを最適化し、テキストエリアを最大化 ([#7](https://github.com/masinc/ringua/issues/7), [PR#8](https://github.com/masinc/ringua/pull/8))
+
 ## [0.1.3] - 2025-06-20
 
 ### Added
