@@ -138,7 +138,7 @@ export default function Settings() {
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const pendingNavigation = useRef<(() => void) | null>(null);
-  const originalTheme = useRef<string>(theme); // 保存されているテーマを保持
+  const originalSettings = useRef<UserSettings>(DEFAULT_SETTINGS); // 保存されている設定を保持
 
   useEffect(() => {
     // 設定をローカルストレージから読み込み
@@ -159,12 +159,16 @@ export default function Settings() {
         if (loadedSettings.theme !== theme) {
           setTheme(loadedSettings.theme);
         }
-        // 保存されているテーマとして記録
-        originalTheme.current = loadedSettings.theme;
+        // 保存されている設定として記録
+        originalSettings.current = loadedSettings;
       } catch (error) {
         console.error("Failed to load settings:", error);
         setSettings(DEFAULT_SETTINGS);
+        originalSettings.current = DEFAULT_SETTINGS;
       }
+    } else {
+      // ローカルストレージに設定がない場合はデフォルト設定を記録
+      originalSettings.current = DEFAULT_SETTINGS;
     }
   }, [theme, setTheme]);
 
@@ -173,8 +177,8 @@ export default function Settings() {
     try {
       localStorage.setItem("ringua-settings", JSON.stringify(settings));
       setHasChanges(false);
-      // 保存されたテーマとして記録
-      originalTheme.current = settings.theme;
+      // 保存された設定として記録
+      originalSettings.current = { ...settings };
     } catch (error) {
       console.error("Failed to save settings:", error);
     } finally {
@@ -292,10 +296,11 @@ export default function Settings() {
   };
 
   const confirmNavigation = () => {
-    // 破棄する場合はテーマを元に戻す
-    if (settings.theme !== originalTheme.current) {
-      setTheme(originalTheme.current as "light" | "dark" | "system");
-    }
+    // 破棄する場合は設定とテーマを元に戻す
+    setSettings(originalSettings.current);
+    setTheme(originalSettings.current.theme);
+    setHasChanges(false);
+    
     setShowUnsavedDialog(false);
     if (pendingNavigation.current) {
       pendingNavigation.current();
